@@ -56,27 +56,27 @@ include CMakeFiles/soil_example.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/soil_example.dir/flags.make
 
-CMakeFiles/soil_example.dir/soil_how_to.cpp.obj: CMakeFiles/soil_example.dir/flags.make
-CMakeFiles/soil_example.dir/soil_how_to.cpp.obj: soil_how_to.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\OpenGL\lab6\soil_example\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/soil_example.dir/soil_how_to.cpp.obj"
-	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\soil_example.dir\soil_how_to.cpp.obj -c D:\Projects\OpenGL\lab6\soil_example\soil_how_to.cpp
+CMakeFiles/soil_example.dir/soil_example.cpp.obj: CMakeFiles/soil_example.dir/flags.make
+CMakeFiles/soil_example.dir/soil_example.cpp.obj: soil_example.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\OpenGL\lab6\soil_example\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/soil_example.dir/soil_example.cpp.obj"
+	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\soil_example.dir\soil_example.cpp.obj -c D:\Projects\OpenGL\lab6\soil_example\soil_example.cpp
 
-CMakeFiles/soil_example.dir/soil_how_to.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/soil_example.dir/soil_how_to.cpp.i"
-	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\OpenGL\lab6\soil_example\soil_how_to.cpp > CMakeFiles\soil_example.dir\soil_how_to.cpp.i
+CMakeFiles/soil_example.dir/soil_example.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/soil_example.dir/soil_example.cpp.i"
+	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\OpenGL\lab6\soil_example\soil_example.cpp > CMakeFiles\soil_example.dir\soil_example.cpp.i
 
-CMakeFiles/soil_example.dir/soil_how_to.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/soil_example.dir/soil_how_to.cpp.s"
-	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Projects\OpenGL\lab6\soil_example\soil_how_to.cpp -o CMakeFiles\soil_example.dir\soil_how_to.cpp.s
+CMakeFiles/soil_example.dir/soil_example.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/soil_example.dir/soil_example.cpp.s"
+	C:\mingw\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Projects\OpenGL\lab6\soil_example\soil_example.cpp -o CMakeFiles\soil_example.dir\soil_example.cpp.s
 
 # Object files for target soil_example
 soil_example_OBJECTS = \
-"CMakeFiles/soil_example.dir/soil_how_to.cpp.obj"
+"CMakeFiles/soil_example.dir/soil_example.cpp.obj"
 
 # External object files for target soil_example
 soil_example_EXTERNAL_OBJECTS =
 
-soil_example.exe: CMakeFiles/soil_example.dir/soil_how_to.cpp.obj
+soil_example.exe: CMakeFiles/soil_example.dir/soil_example.cpp.obj
 soil_example.exe: CMakeFiles/soil_example.dir/build.make
 soil_example.exe: CMakeFiles/soil_example.dir/linklibs.rsp
 soil_example.exe: CMakeFiles/soil_example.dir/objects1.rsp

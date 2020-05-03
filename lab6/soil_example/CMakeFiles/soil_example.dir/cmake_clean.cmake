@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/soil_example.dir/soil_how_to.cpp.obj"
+  "CMakeFiles/soil_example.dir/soil_example.cpp.obj"
   "libsoil_example.dll.a"
   "soil_example.exe"
   "soil_example.exe.manifest"

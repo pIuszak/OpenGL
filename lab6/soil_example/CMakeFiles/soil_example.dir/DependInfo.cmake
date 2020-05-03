@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Projects/OpenGL/lab6/soil_example/soil_how_to.cpp" "D:/Projects/OpenGL/lab6/soil_example/CMakeFiles/soil_example.dir/soil_how_to.cpp.obj"
+  "D:/Projects/OpenGL/lab6/soil_example/soil_example.cpp" "D:/Projects/OpenGL/lab6/soil_example/CMakeFiles/soil_example.dir/soil_example.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -122,32 +122,32 @@ soil_example/fast:
 	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/build
 .PHONY : soil_example/fast
 
-soil_how_to.obj: soil_how_to.cpp.obj
+soil_example.obj: soil_example.cpp.obj
 
-.PHONY : soil_how_to.obj
+.PHONY : soil_example.obj
 
 # target to build an object file
-soil_how_to.cpp.obj:
-	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_how_to.cpp.obj
-.PHONY : soil_how_to.cpp.obj
+soil_example.cpp.obj:
+	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_example.cpp.obj
+.PHONY : soil_example.cpp.obj
 
-soil_how_to.i: soil_how_to.cpp.i
+soil_example.i: soil_example.cpp.i
 
-.PHONY : soil_how_to.i
+.PHONY : soil_example.i
 
 # target to preprocess a source file
-soil_how_to.cpp.i:
-	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_how_to.cpp.i
-.PHONY : soil_how_to.cpp.i
+soil_example.cpp.i:
+	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_example.cpp.i
+.PHONY : soil_example.cpp.i
 
-soil_how_to.s: soil_how_to.cpp.s
+soil_example.s: soil_example.cpp.s
 
-.PHONY : soil_how_to.s
+.PHONY : soil_example.s
 
 # target to generate assembly for a file
-soil_how_to.cpp.s:
-	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_how_to.cpp.s
-.PHONY : soil_how_to.cpp.s
+soil_example.cpp.s:
+	$(MAKE) -f CMakeFiles\soil_example.dir\build.make CMakeFiles/soil_example.dir/soil_example.cpp.s
+.PHONY : soil_example.cpp.s
 
 # Help Target
 help:
@@ -158,9 +158,9 @@ help:
 	@echo ... soil_example
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... soil_how_to.obj
-	@echo ... soil_how_to.i
-	@echo ... soil_how_to.s
+	@echo ... soil_example.obj
+	@echo ... soil_example.i
+	@echo ... soil_example.s
 .PHONY : help
 
 

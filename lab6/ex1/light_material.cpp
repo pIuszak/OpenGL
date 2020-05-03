@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <GL/SOIL.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -63,8 +64,9 @@ SMaterial Material1 = {
 GLuint program;
 GLuint vBuffer_coord;
 GLuint vBuffer_normal;
+GLuint vBuffer_uv;
 GLuint vArray;
-
+GLuint TextureID;
 
 // ---------------------------------------
 // Macierze przeksztalcen i rzutowania
@@ -137,13 +139,63 @@ void Initialize()
 
 	_scene_translate_z = -10.0f;
 
-	if (!loadOBJ("scene.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
-	{
-		printf("Not loaded!\n");
-		exit(1);
-	}
+// 1
+//	if (!loadOBJ("scene.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
+//	{
+//		printf("Not loaded!\n");
+//		exit(1);
+//	}
+    // Ladowanie pliku OBJ
+    if (!loadOBJ("flower.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
+
+    // 2
+    //glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+
+    // ---------------------------------------
+    // Tworzenie tekstury <<--- NOWE
+
+    glEnable(GL_TEXTURE_2D);
+
+    glGenTextures(1, &TextureID);
+    glBindTexture(GL_TEXTURE_2D, TextureID);
+
+    int width, height;
+    unsigned char* image;
 
 
+    // NOWE :
+    // Parametr: SOIL_LOAD_RGBA
+
+    image = SOIL_load_image("flower.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    if (image == NULL)
+    {
+        printf("Blad odczytu pliku graficznego!\n");
+        exit(1);
+    }
+
+
+    // NOWE: parametr RGBA zamiast RGB dwukrotnie !
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    SOIL_free_image_data(image);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+
+
+
+
+
+
+    _scene_translate_z = -5;
     glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
 
     // 1. Programowanie potoku
@@ -178,10 +230,21 @@ void Initialize()
 	glEnableVertexAttribArray( 1 );
 
 
+    // Wspolrzedne textury UV
+    glGenBuffers( 1, &vBuffer_uv );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs.size() * sizeof(glm::vec2), &OBJ_uvs[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 1 );
+
 
 
 	glBindVertexArray( 0 );
 	glEnable( GL_DEPTH_TEST );
+    glEnable( GL_BLEND );
+    glBindVertexArray( vArray );
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBindVertexArray( vArray );
     glUseProgram( program );
@@ -213,8 +276,9 @@ int main( int argc, char *argv[] )
 {
     // GLUT
     glutInit( &argc, argv );
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
-    glutInitContextVersion( 3, 2 );
+    // NOWE !! GLUT_RGBA
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
+    glutInitContextVersion( 4, 0 );
     glutInitContextProfile( GLUT_CORE_PROFILE );
     glutInitWindowSize( 500, 500 );
     glutCreateWindow( "OpenGL" );
@@ -252,6 +316,7 @@ int main( int argc, char *argv[] )
     // Cleaning();
     glDeleteProgram( program );
     glDeleteBuffers( 1, &vBuffer_coord );
+
     glDeleteBuffers( 1, &vBuffer_normal );
     glDeleteVertexArrays( 1, &vArray );
 

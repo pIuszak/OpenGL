@@ -7,6 +7,10 @@ out vec4 outColor;
 
 uniform vec3 Camera_Position;
 
+in vec4 inoutPos;
+in vec2 inoutUV;
+
+uniform sampler2D tex0;
 
 // -----------------------
 // Oswietlenie
@@ -80,18 +84,23 @@ vec3 Calculate_PointLight(vec3 viewDir)
 
 void main()
 {
+	vec4 texColor = texture( tex0, inoutUV );
+	if(texColor.a < 0.1)
+	discard;
 
-	// Kolor startowy
-	vec3 objectColor = vec3(abs(sin(length(ourPosition))), 1.0, 1.0);
-
-	vec3 viewDir = normalize(Camera_Position - vec3(ourPosition));
-
-	// Obliczanie swiatel punktowych
-	vec3 lightPart = vec3(0.0);
-
-	lightPart += Calculate_PointLight(viewDir) * objectColor;
-
-	outColor = vec4(lightPart, 1.0);
+	outColor = texColor;
+//
+//	// Kolor startowy
+//	vec3 objectColor = vec3(abs(sin(length(ourPosition))), 1.0, 1.0);
+//
+//	vec3 viewDir = normalize(Camera_Position - vec3(ourPosition));
+//
+//	// Obliczanie swiatel punktowych
+//	vec3 lightPart = vec3(0.0);
+//
+//	lightPart += Calculate_PointLight(viewDir) * objectColor;
+//
+//	outColor = vec4(lightPart, 1.0);
 
 
 }

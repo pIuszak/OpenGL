@@ -17,17 +17,17 @@ uniform mat4 Matrix_proj_mv;
 void main()
 {
 
-//	gl_Position = matProjection * matView * inPosition;
-//
-//	// Sending coordinates and normals in Model/World space
-//	ourPosition = inPosition;
-//
-//	ourNormal = inNormal;
-//	inoutUV = inUV;
-	gl_Position = Matrix_proj_mv * inPosition;
+	gl_Position = matProjection * matView * inPosition;
 
-	inoutPos = inPosition;
+	// Sending coordinates and normals in Model/World space
+	ourPosition = inPosition;
+
+	ourNormal = inNormal;
 	inoutUV = inUV;
+//	gl_Position = Matrix_proj_mv * inPosition;
+//
+//	inoutPos = inPosition;
+//	inoutUV = inUV;
 
 }
 

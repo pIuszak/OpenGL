@@ -46,9 +46,9 @@ void main()
     // Obliczenie wektora (swiatlo - wierzcholek)
     // czyli kierunku padania swiatla na wierzcholek
     vec3 resultDiffuse = vec3(0.2, 0.8, 0.2);
-    float lightCoeff = 0f;
+    float lightCoeff = 0;
     // brightness
-    float dist = 0f;
+    float dist = 0;
     vec3 lightDirection =vec3(0.2, 0.8, 0.2);
     for (int i=0; i<MAX_LIGHTS; i++)
     {

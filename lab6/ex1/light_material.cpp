@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <GL/SOIL.h>
-
+#include <math.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -65,7 +65,8 @@ GLuint program;
 GLuint vBuffer_coord;
 GLuint vBuffer_normal;
 GLuint vBuffer_uv;
-GLuint vArray;
+GLuint vArrayTrees;
+GLuint vArrayFlowers;
 GLuint TextureID;
 
 // ---------------------------------------
@@ -87,8 +88,21 @@ std::vector<glm::vec3> OBJ_vertices;
 std::vector<glm::vec2> OBJ_uvs;
 std::vector<glm::vec3> OBJ_normals;
 
+std::vector<glm::vec3> OBJ2_vertices;
+std::vector<glm::vec2> OBJ2_uvs;
+std::vector<glm::vec3> OBJ2_normals;
 
 
+
+float treesX [100];
+float treesY [100];
+
+void randTrees(){
+    for (int i = 0; i < 100; ++i) {
+        treesX[i] = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2) - 1)*10;
+        treesY[i] = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2) - 1)*10;
+    }
+}
 
 // ---------------------------------------
 void DisplayScene()
@@ -99,25 +113,52 @@ void DisplayScene()
     // ------------------------------
 	// 1. Geometria sceny
 	// Ustawiamy macierz jednostkowa
-	matView = glm::mat4x4( 1.0 );
-	matView = glm::translate( matView, glm::vec3( _scene_translate_x, _scene_translate_y, _scene_translate_z ) );
-	matView = glm::rotate( matView, _scene_rotate_x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
-	matView = glm::rotate( matView, _scene_rotate_y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
 
 
-	glUniformMatrix4fv( glGetUniformLocation( program, "matProjection" ), 1, GL_FALSE, glm::value_ptr(matProjection) );
-	glUniformMatrix4fv( glGetUniformLocation( program, "matView" ), 1, GL_FALSE, glm::value_ptr(matView) );
-
-	// Nowe! wazne dla Specular light
-	Camera_Position = ExtractCameraPos(matView);
-	glUniform3fv( glGetUniformLocation( program, "Camera_Position" ), 1, &Camera_Position[0] );
+    for (int i = 0; i < 100; ++i) {
+        matView = glm::mat4x4( 1.0 );
+        matView = glm::rotate( matView, _scene_rotate_x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+        matView = glm::rotate( matView, _scene_rotate_y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+        matView = glm::translate( matView, glm::vec3( _scene_translate_x+treesX[i], _scene_translate_y -2, _scene_translate_z+treesY[i] ) );
 
 
 
 
+        glUniformMatrix4fv( glGetUniformLocation( program, "matProjection" ), 1, GL_FALSE, glm::value_ptr(matProjection) );
+        glUniformMatrix4fv( glGetUniformLocation( program, "matView" ), 1, GL_FALSE, glm::value_ptr(matView) );
 
-    glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices.size() );
+        // Nowe! wazne dla Specular light
+       // Camera_Position = ExtractCameraPos(matView);
+        glUniform3fv( glGetUniformLocation( program, "Camera_Position" ), 1, &Camera_Position[0] );
+
+        glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices.size() );
+    }
+
+
+    matView = glm::mat4x4( 1.0 );
+    matView = glm::rotate( matView, _scene_rotate_x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+    matView = glm::rotate( matView, _scene_rotate_y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    matView = glm::translate( matView, glm::vec3( _scene_translate_x, _scene_translate_y -2, _scene_translate_z) );
+
+
+
+
+    glUniformMatrix4fv( glGetUniformLocation( program, "matProjection" ), 1, GL_FALSE, glm::value_ptr(matProjection) );
+    glUniformMatrix4fv( glGetUniformLocation( program, "matView" ), 1, GL_FALSE, glm::value_ptr(matView) );
+
+    // Nowe! wazne dla Specular light
+    // Camera_Position = ExtractCameraPos(matView);
+    glUniform3fv( glGetUniformLocation( program, "Camera_Position" ), 1, &Camera_Position[0] );
+
+    glDrawArrays( GL_TRIANGLES, 0, OBJ2_vertices.size() );
+
+
+
+
+
+
+
 
 
 
@@ -146,12 +187,18 @@ void Initialize()
 //		exit(1);
 //	}
     // Ladowanie pliku OBJ
+
     if (!loadOBJ("flower.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
     {
         printf("Not loaded!\n");
         exit(1);
     }
 
+        if (!loadOBJ("laubbaum.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
     // 2
     //glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
 
@@ -170,7 +217,7 @@ void Initialize()
     // NOWE :
     // Parametr: SOIL_LOAD_RGBA
 
-    image = SOIL_load_image("flower.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    image = SOIL_load_image("tex1.png", &width, &height, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
         printf("Blad odczytu pliku graficznego!\n");
@@ -188,13 +235,6 @@ void Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
-
-
-
-
-
-
     _scene_translate_z = -5;
     glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
 
@@ -209,8 +249,8 @@ void Initialize()
 
 
     // 2. Vertex arrays
-    glGenVertexArrays( 1, &vArray );
-    glBindVertexArray( vArray );
+    glGenVertexArrays( 1, &vArrayFlowers );
+    glBindVertexArray( vArrayFlowers );
 
 	// Wspolrzedne wierzchokow
     glGenBuffers( 1, &vBuffer_coord );
@@ -234,19 +274,19 @@ void Initialize()
     glGenBuffers( 1, &vBuffer_uv );
     glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv );
     glBufferData( GL_ARRAY_BUFFER, OBJ_uvs.size() * sizeof(glm::vec2), &OBJ_uvs[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
+    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 2 );
 
 
 
 	glBindVertexArray( 0 );
 	glEnable( GL_DEPTH_TEST );
     glEnable( GL_BLEND );
-    glBindVertexArray( vArray );
+    glBindVertexArray( vArrayFlowers );
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glBindVertexArray( vArray );
+	glBindVertexArray( vArrayFlowers );
     glUseProgram( program );
 
 	glUniform3fv( glGetUniformLocation(program, "myMaterial.Ambient"), 1, &Material1.Ambient[0]);
@@ -259,11 +299,131 @@ void Initialize()
 	glUniform4fv( glGetUniformLocation(program, "myLight.Specular"), 1, &Light1.Specular[0]);
 	glUniform4fv( glGetUniformLocation(program, "myLight.Position"), 1, &Light1.Position[0]);
 	glUniform1f( glGetUniformLocation(program, "myLight.Attenuation"), Light1.Attenuation);
-
-
-
-
 }
+
+//void InitializeMain()
+//{
+//
+//    _scene_translate_z = -10.0f;
+//
+//// 1
+////	if (!loadOBJ("scene.obj", OBJ_vertices, OBJ_uvs, OBJ_normals))
+////	{
+////		printf("Not loaded!\n");
+////		exit(1);
+////	}
+//    // Ladowanie pliku OBJ
+//    if (!loadOBJ("laubbaum.obj", OBJ2_vertices, OBJ2_uvs, OBJ2_normals))
+//    {
+//        printf("Not loaded!\n");
+//        exit(1);
+//    }
+////    if (!loadOBJ("flower.obj", OBJ2_vertices, OBJ2_uvs, OBJ2_normals))
+////    {
+////        printf("Not loaded!\n");
+////        exit(1);
+////    }
+//    // 2
+//    //glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+//
+//    // ---------------------------------------
+//    // Tworzenie tekstury <<--- NOWE
+//
+//    glEnable(GL_TEXTURE_2D);
+//
+//    glGenTextures(1, &TextureID);
+//    glBindTexture(GL_TEXTURE_2D, TextureID);
+//
+//    int width, height;
+//    unsigned char* image;
+//
+//
+//    // NOWE :
+//    // Parametr: SOIL_LOAD_RGBA
+//
+//    image = SOIL_load_image("tex1.png", &width, &height, 0, SOIL_LOAD_RGBA);
+//    if (image == NULL)
+//    {
+//        printf("Blad odczytu pliku graficznego!\n");
+//        exit(1);
+//    }
+//
+//
+//    // NOWE: parametr RGBA zamiast RGB dwukrotnie !
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+//    SOIL_free_image_data(image);
+//
+//    glGenerateMipmap(GL_TEXTURE_2D);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//    _scene_translate_z = -5;
+//    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+//
+//    // 1. Programowanie potoku
+//    program = glCreateProgram();
+//
+//    glAttachShader( program, LoadShader(GL_VERTEX_SHADER, "vertex.glsl"));
+//    glAttachShader( program2 LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
+//
+//    LinkAndValidateProgram( program );
+//
+//
+//
+//    // 2. Vertex arrays
+//    glGenVertexArrays( 1, &vArrayFlowers );
+//    glBindVertexArray( vArrayFlowers );
+//
+//    // Wspolrzedne wierzchokow
+//    glGenBuffers( 1, &vBuffer_coord );
+//    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_coord );
+//    glBufferData( GL_ARRAY_BUFFER, OBJ2_vertices.size() * sizeof(glm::vec3), &OBJ2_vertices[0], GL_STATIC_DRAW );
+//
+//    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+//    glEnableVertexAttribArray( 0 );
+//
+//
+//    // Wektory normalne
+//    glGenBuffers( 1, &vBuffer_normal );
+//    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_normal );
+//    glBufferData( GL_ARRAY_BUFFER, OBJ2_normals.size() * sizeof(glm::vec3), &OBJ2_normals[0], GL_STATIC_DRAW );
+//
+//    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+//    glEnableVertexAttribArray( 1 );
+//
+//
+//    // Wspolrzedne textury UV
+//    glGenBuffers( 1, &vBuffer_uv );
+//    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv );
+//    glBufferData( GL_ARRAY_BUFFER, OBJ2_uvs.size() * sizeof(glm::vec2), &OBJ2_uvs[0], GL_STATIC_DRAW );
+//    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+//    glEnableVertexAttribArray( 2 );
+//
+//
+//
+//    glBindVertexArray( 0 );
+//    glEnable( GL_DEPTH_TEST );
+//    glEnable( GL_BLEND );
+//    glBindVertexArray( vArrayFlowers );
+//
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    glBindVertexArray( vArrayFlowers );
+//    glUseProgram( program2 );
+//
+//    glUniform3fv( glGetUniformLocation(program2, "myMaterial.Ambient"), 1, &Material1.Ambient[0]);
+//    glUniform3fv( glGetUniformLocation(program2, "myMaterial.Diffuse"), 1, &Material1.Diffuse[0]);
+//    glUniform3fv( glGetUniformLocation(program2, "myMaterial.Specular"), 1, &Material1.Specular[0]);
+//    glUniform1f( glGetUniformLocation(program2, "myMaterial.Shininess"), Material1.Shininess);
+//
+//    glUniform4fv( glGetUniformLocation(program2, "myLight.Ambient"), 1, &Light1.Ambient[0]);
+//    glUniform4fv( glGetUniformLocation(program2, "myLight.Diffuse"), 1, &Light1.Diffuse[0]);
+//    glUniform4fv( glGetUniformLocation(program2, "myLight.Specular"), 1, &Light1.Specular[0]);
+//    glUniform4fv( glGetUniformLocation(program2, "myLight.Position"), 1, &Light1.Position[0]);
+//    glUniform1f( glGetUniformLocation(program2, "myLight.Attenuation"), Light1.Attenuation);
+//}
 
 void Animation(int f)
 {
@@ -274,6 +434,7 @@ void Animation(int f)
 // ---------------------------------------------------
 int main( int argc, char *argv[] )
 {
+    randTrees();
     // GLUT
     glutInit( &argc, argv );
     // NOWE !! GLUT_RGBA
@@ -301,6 +462,7 @@ int main( int argc, char *argv[] )
 
 
 	Initialize();
+
 	glutDisplayFunc( DisplayScene );
 	glutReshapeFunc( Reshape );
 	glutMouseFunc( MouseButton );
@@ -315,10 +477,10 @@ int main( int argc, char *argv[] )
 
     // Cleaning();
     glDeleteProgram( program );
-    glDeleteBuffers( 1, &vBuffer_coord );
 
+    glDeleteBuffers( 1, &vBuffer_coord );
     glDeleteBuffers( 1, &vBuffer_normal );
-    glDeleteVertexArrays( 1, &vArray );
+    glDeleteVertexArrays( 1, &vArrayTrees );
 
     return 0;
 }

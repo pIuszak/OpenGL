@@ -2,7 +2,7 @@
 
 layout( location = 0 ) in vec4 inPosition;
 layout( location = 1 ) in vec3 inNormal;
-layout( location = 1 ) in vec2 inUV;
+layout( location = 2 ) in vec2 inUV;
 
 out vec4 ourPosition;
 out vec3 ourNormal;

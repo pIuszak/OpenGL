@@ -245,7 +245,7 @@ int main( int argc, char *argv[] )
 	glutKeyboardFunc( Keyboard );
 	glutSpecialFunc( SpecialKeys );
 
-	glutTimerFunc(10, Animation, 0);
+	glutTimerFunc(1, Animation, 0);
 
     glutMainLoop();
 

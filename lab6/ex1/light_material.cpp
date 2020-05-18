@@ -223,7 +223,7 @@ void Initialize()
     // NOWE :
     // Parametr: SOIL_LOAD_RGBA
 
-    image = SOIL_load_image("tex1.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    image = SOIL_load_image("tex1-min.png", &width, &height, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
         printf("Blad odczytu pliku graficznego!\n");

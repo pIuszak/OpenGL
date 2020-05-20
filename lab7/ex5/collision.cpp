@@ -19,10 +19,12 @@ glm::mat4x4 Matrix_proj_mv;
 glm::mat4x4 matModel(1.0);
 
 #define NUMBER_OF_OBJECTS 3
+#define NUMBER_OF_COLLIDERS 10
 
 enum {
     GROUND = 0,
     SPHERE = 1,
+    ARROW = 2,
 };
 
 
@@ -50,7 +52,7 @@ class CSceneObject
 public:
 
     glm::vec3 Position;     // pozycja obiektu na scenie
-
+    float radius = 1.0f;
 
     GLuint VAO;             // potok openGL
     int VBO_Size;
@@ -61,7 +63,6 @@ public:
     CSceneObject()
     {
     }
-
 
     // ustawienie potoku
     void Set(GLuint _prog, GLuint _vao, int _size)
@@ -98,14 +99,26 @@ public:
         matModel = glm::translate(glm::mat4(1.0), Position);
     }
 
+    bool isCollision(const CSceneObject &other){
+     float dist = glm::distance(this->Position,other.Position);
+     if (dist < this->radius + other.radius){
+
+         return true;
+     }
+     return false;
+    }
+
 };
 
 
 
 
 // Obiekty na scenie
-CSceneObject Stone;
+CSceneObject Stone [NUMBER_OF_COLLIDERS];
+CSceneObject Pointer [NUMBER_OF_COLLIDERS];
+
 CSceneObject myCharacter;
+
 
 
 
@@ -132,7 +145,7 @@ void DisplayScene()
     matModel = glm::mat4x4( 1.0 );
     glUniformMatrix4fv( glGetUniformLocation( program, "matModel" ), 1, GL_FALSE, glm::value_ptr(matModel) );
 
-
+   // glUniform1i(glGetUniformLocation(program, "Frame"), Frame);
 
 	// GROUND
 	glActiveTexture(GL_TEXTURE0);
@@ -149,8 +162,18 @@ void DisplayScene()
 	glBindTexture(GL_TEXTURE_2D, TextureID[SPHERE]);
     glUniform1i(glGetUniformLocation(program, "tex0"), 0);
 
-	Stone.Draw();
-	myCharacter.Draw();
+    // ARROW
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, TextureID[ARROW]);
+    glUniform1i(glGetUniformLocation(program, "tex0"), 0);
+
+    myCharacter.Draw();
+    for (int i = 0; i < NUMBER_OF_COLLIDERS; ++i) {
+        Stone[i].Draw();
+
+        if (Stone[i].isCollision(myCharacter)) Pointer[i].Draw();
+    }
+
 
 
 
@@ -262,8 +285,6 @@ void Initialize()
 
 
 
-
-
     // SPHERE
     if (!loadOBJ("sphere.obj", OBJ_vertices[SPHERE], OBJ_uvs[SPHERE], OBJ_normals[SPHERE]))
 	{
@@ -299,14 +320,60 @@ void Initialize()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+//ARROW
 
+    // ARROW
+    if (!loadOBJ("pointer.obj", OBJ_vertices[ARROW], OBJ_uvs[ARROW], OBJ_normals[ARROW]))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
+    // Vertex arrays
+    glGenVertexArrays( 1, &vArray[ARROW] );
+    glBindVertexArray( vArray[ARROW] );
+
+    glGenBuffers( 1, &vBuffer_pos[ARROW] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[ARROW] );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[ARROW].size() * sizeof(glm::vec3), &(OBJ_vertices[ARROW])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 0 );
+
+    glGenBuffers( 1, &vBuffer_uv[ARROW] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[ARROW] );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[ARROW].size() * sizeof(glm::vec2), &(OBJ_uvs[ARROW])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 1 );
+    glBindVertexArray( 0 );
+
+   // loadBMP_custom("chess.bmp", tex_width, tex_height, &tex_data);
+
+    glGenTextures(1, &TextureID[ARROW]);
+    glBindTexture(GL_TEXTURE_2D, TextureID[ARROW]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_BGR, GL_UNSIGNED_BYTE, tex_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     // Inicjalizacja obiektow
 
-    Stone.Set(program, vArray[SPHERE], OBJ_vertices[SPHERE].size() );
-    Stone.SetPosition(5, 0, -5);
+    for (int i = 0; i < NUMBER_OF_COLLIDERS; ++i) {
+
+        float x = (rand()%100) / 10 - 5;
+        float z = (rand()%100) / 10 - 5;
+
+        Stone[i].Set(program, vArray[SPHERE], OBJ_vertices[SPHERE].size() );
+        Stone[i].SetPosition(x, 0, -z);
+
+        Pointer[i].Set(program, vArray[ARROW], OBJ_vertices[ARROW].size() );
+        Pointer[i].SetPosition(x, -2, -z);
+    }
 
     myCharacter.Set(program, vArray[SPHERE], OBJ_vertices[SPHERE].size() );
     myCharacter.SetPosition(0, 0, 0);
+
+
 
 	glEnable( GL_DEPTH_TEST );
 

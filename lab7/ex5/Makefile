@@ -47,10 +47,10 @@ RM = "C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmak
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Projects\OpenGL\lab6\ex1
+CMAKE_SOURCE_DIR = D:\Projects\OpenGL\lab7\ex5
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Projects\OpenGL\lab6\ex1
+CMAKE_BINARY_DIR = D:\Projects\OpenGL\lab7\ex5
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,9 +79,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab6\ex1\CMakeFiles D:\Projects\OpenGL\lab6\ex1\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab7\ex5\CMakeFiles D:\Projects\OpenGL\lab7\ex5\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab6\ex1\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab7\ex5\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -110,44 +110,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ex1
+# Target rules for targets named ex5
 
 # Build rule for target.
-ex1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 ex1
-.PHONY : ex1
+ex5: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 ex5
+.PHONY : ex5
 
 # fast build rule for target.
-ex1/fast:
-	$(MAKE) -f CMakeFiles\ex1.dir\build.make CMakeFiles/ex1.dir/build
-.PHONY : ex1/fast
+ex5/fast:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/build
+.PHONY : ex5/fast
 
-light_material.obj: light_material.cpp.obj
+collision.obj: collision.cpp.obj
 
-.PHONY : light_material.obj
+.PHONY : collision.obj
 
 # target to build an object file
-light_material.cpp.obj:
-	$(MAKE) -f CMakeFiles\ex1.dir\build.make CMakeFiles/ex1.dir/light_material.cpp.obj
-.PHONY : light_material.cpp.obj
+collision.cpp.obj:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.obj
+.PHONY : collision.cpp.obj
 
-light_material.i: light_material.cpp.i
+collision.i: collision.cpp.i
 
-.PHONY : light_material.i
+.PHONY : collision.i
 
 # target to preprocess a source file
-light_material.cpp.i:
-	$(MAKE) -f CMakeFiles\ex1.dir\build.make CMakeFiles/ex1.dir/light_material.cpp.i
-.PHONY : light_material.cpp.i
+collision.cpp.i:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.i
+.PHONY : collision.cpp.i
 
-light_material.s: light_material.cpp.s
+collision.s: collision.cpp.s
 
-.PHONY : light_material.s
+.PHONY : collision.s
 
 # target to generate assembly for a file
-light_material.cpp.s:
-	$(MAKE) -f CMakeFiles\ex1.dir\build.make CMakeFiles/ex1.dir/light_material.cpp.s
-.PHONY : light_material.cpp.s
+collision.cpp.s:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.s
+.PHONY : collision.cpp.s
 
 # Help Target
 help:
@@ -155,12 +155,12 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
-	@echo ... ex1
+	@echo ... ex5
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... light_material.obj
-	@echo ... light_material.i
-	@echo ... light_material.s
+	@echo ... collision.obj
+	@echo ... collision.i
+	@echo ... collision.s
 .PHONY : help
 
 

@@ -1,8 +1,8 @@
-# Install script for directory: D:/Projects/OpenGL/lab6/ex1
+# Install script for directory: D:/Projects/OpenGL/lab7/ex5
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/light_material")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/ex1")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/Projects/OpenGL/lab6/ex1/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/Projects/OpenGL/lab7/ex5/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

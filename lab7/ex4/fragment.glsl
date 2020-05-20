@@ -7,6 +7,7 @@ out vec4 outColor;
 
 uniform sampler2D tex0;
 
+
 void main()
 {
 

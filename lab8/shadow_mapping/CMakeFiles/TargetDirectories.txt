@@ -1,0 +1,3 @@
+D:/Projects/OpenGL/lab8/shadow_mapping/CMakeFiles/shadow_mapping.dir
+D:/Projects/OpenGL/lab8/shadow_mapping/CMakeFiles/edit_cache.dir
+D:/Projects/OpenGL/lab8/shadow_mapping/CMakeFiles/rebuild_cache.dir

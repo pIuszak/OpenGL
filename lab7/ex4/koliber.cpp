@@ -129,10 +129,6 @@ void DisplayScene()
     // WYLACZAMY program
     glUseProgram( 0);
 
-
-
-
-
 	glutSwapBuffers();
 }
 

@@ -1,7 +1,7 @@
 // References:
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 // Janusz Ganczarski, OpenGL. Podstawy programowania grafiki 3D, Helion.
-
+#include <GL/SOIL.h>
 
 #include <stdio.h>
 #include <GL/glew.h>
@@ -145,6 +145,16 @@ void DrawToScreen()
     glUseProgram(0);
 }
 
+float treesX [100];
+float treesY [100];
+
+void randTrees(){
+    for (int i = 0; i < 100; ++i) {
+        treesX[i] = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2) - 1)*10;
+        treesY[i] = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2) - 1)*10;
+    }
+}
+
 // -------------------------------------------------------
 void DisplayScene()
 {
@@ -197,7 +207,11 @@ void Initialize()
         printf("Not loaded!\n");
         exit(1);
     }
-
+    if (!loadOBJ("flower.obj", OBJ_vertices[SCENE], OBJ_uvs[SCENE], OBJ_normals[SCENE]))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
 
 
     // Tworzenie potoku OpenGL
@@ -222,8 +236,18 @@ void Initialize()
     glBufferData( GL_ARRAY_BUFFER, OBJ_normals[SCENE].size() * sizeof(glm::vec3), &(OBJ_normals[SCENE])[0], GL_STATIC_DRAW );
     glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
     glEnableVertexAttribArray( 1 );
+    int width, height;
+    unsigned char* image;
 
+    image = SOIL_load_image("tex1-min.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    if (image == NULL)
+    {
+        printf("Blad odczytu pliku graficznego!\n");
+        exit(1);
+    }
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    SOIL_free_image_data(image);
     // Inne ustawienia openGL i sceny
     glEnable( GL_DEPTH_TEST );
 

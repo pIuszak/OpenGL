@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Projects/OpenGL/lab8/shadow_mapping/shadow_mapping.cpp" "D:/Projects/OpenGL/lab8/shadow_mapping/CMakeFiles/shadow_mapping.dir/shadow_mapping.cpp.obj"
+  "C:/Dev/OpenGL/lab8/shadow_mapping/shadow_mapping.cpp" "C:/Dev/OpenGL/lab8/shadow_mapping/CMakeFiles/shadow_mapping.dir/shadow_mapping.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

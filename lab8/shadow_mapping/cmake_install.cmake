@@ -1,8 +1,8 @@
-# Install script for directory: D:/Projects/OpenGL/lab8/shadow_mapping
+# Install script for directory: C:/Dev/OpenGL/lab8/shadow_mapping
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/ex1")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/shadow_mapping")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/Projects/OpenGL/lab8/shadow_mapping/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Dev/OpenGL/lab8/shadow_mapping/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

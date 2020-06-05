@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-D:/Projects/OpenGL/lab8/shadow_mapping/obj_loader.hpp
+C:/Dev/OpenGL/lab8/shadow_mapping/obj_loader.hpp
 vector
 -
 stdio.h
@@ -18,11 +18,13 @@ cstring
 glm/glm.hpp
 -
 
-D:/Projects/OpenGL/lab8/shadow_mapping/shader_stuff.h
+C:/Dev/OpenGL/lab8/shadow_mapping/shader_stuff.h
 fstream
 -
 
-D:/Projects/OpenGL/lab8/shadow_mapping/shadow_mapping.cpp
+C:/Dev/OpenGL/lab8/shadow_mapping/shadow_mapping.cpp
+GL/SOIL.h
+-
 stdio.h
 -
 GL/glew.h
@@ -36,7 +38,7 @@ glm/gtc/matrix_transform.hpp
 glm/gtc/type_ptr.hpp
 -
 obj_loader.hpp
-D:/Projects/OpenGL/lab8/shadow_mapping/obj_loader.hpp
+C:/Dev/OpenGL/lab8/shadow_mapping/obj_loader.hpp
 shader_stuff.h
-D:/Projects/OpenGL/lab8/shadow_mapping/shader_stuff.h
+C:/Dev/OpenGL/lab8/shadow_mapping/shader_stuff.h
 

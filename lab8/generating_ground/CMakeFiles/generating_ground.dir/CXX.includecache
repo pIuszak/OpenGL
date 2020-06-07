@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-D:/Projects/OpenGL/lab8/generating_ground/ground.cpp
+C:/Dev/OpenGL/lab8/generating_ground/ground.cpp
 stdio.h
 -
 GL/glew.h
@@ -20,13 +20,13 @@ glm/gtc/matrix_transform.hpp
 glm/gtc/type_ptr.hpp
 -
 obj_loader.hpp
-D:/Projects/OpenGL/lab8/generating_ground/obj_loader.hpp
+C:/Dev/OpenGL/lab8/generating_ground/obj_loader.hpp
 texture_loader.hpp
-D:/Projects/OpenGL/lab8/generating_ground/texture_loader.hpp
+C:/Dev/OpenGL/lab8/generating_ground/texture_loader.hpp
 shader_stuff.h
-D:/Projects/OpenGL/lab8/generating_ground/shader_stuff.h
+C:/Dev/OpenGL/lab8/generating_ground/shader_stuff.h
 
-D:/Projects/OpenGL/lab8/generating_ground/obj_loader.hpp
+C:/Dev/OpenGL/lab8/generating_ground/obj_loader.hpp
 vector
 -
 stdio.h
@@ -38,11 +38,11 @@ cstring
 glm/glm.hpp
 -
 
-D:/Projects/OpenGL/lab8/generating_ground/shader_stuff.h
+C:/Dev/OpenGL/lab8/generating_ground/shader_stuff.h
 fstream
 -
 
-D:/Projects/OpenGL/lab8/generating_ground/texture_loader.hpp
+C:/Dev/OpenGL/lab8/generating_ground/texture_loader.hpp
 GL/glew.h
 -
 

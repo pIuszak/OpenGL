@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Projects/OpenGL/lab7/ex1/objfile.cpp" "D:/Projects/OpenGL/lab7/ex1/CMakeFiles/ex1.dir/objfile.cpp.obj"
+  "C:/Dev/OpenGL/lab7/ex1/objfile.cpp" "C:/Dev/OpenGL/lab7/ex1/CMakeFiles/ex1.dir/objfile.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Projects/OpenGL/lab8/rendering_pozaekranowy/rendering_pozaekranowy.cpp" "D:/Projects/OpenGL/lab8/rendering_pozaekranowy/CMakeFiles/rendering_pozaekranowy.dir/rendering_pozaekranowy.cpp.obj"
+  "C:/Dev/OpenGL/lab8/rendering_pozaekranowy/rendering_pozaekranowy.cpp" "C:/Dev/OpenGL/lab8/rendering_pozaekranowy/CMakeFiles/rendering_pozaekranowy.dir/rendering_pozaekranowy.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

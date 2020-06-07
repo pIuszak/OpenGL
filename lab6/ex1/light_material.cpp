@@ -142,8 +142,6 @@ void DisplayScene()
     matView = glm::translate( matView, glm::vec3( _scene_translate_x, _scene_translate_y -2, _scene_translate_z) );
 
 
-
-
     glUniformMatrix4fv( glGetUniformLocation( program, "matProjection" ), 1, GL_FALSE, glm::value_ptr(matProjection) );
     glUniformMatrix4fv( glGetUniformLocation( program, "matView" ), 1, GL_FALSE, glm::value_ptr(matView) );
 
@@ -152,17 +150,6 @@ void DisplayScene()
     glUniform3fv( glGetUniformLocation( program, "Camera_Position" ), 1, &Camera_Position[0] );
 
     glDrawArrays( GL_TRIANGLES, 0, OBJ2_vertices.size() );
-
-
-
-
-
-
-
-
-
-
-
     glutSwapBuffers();
 }
 

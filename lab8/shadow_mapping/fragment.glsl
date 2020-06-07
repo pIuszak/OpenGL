@@ -11,7 +11,7 @@ uniform vec3 Light_Direction;
 
 
 out vec4 outColor;
-
+in vec2 inoutUV;
 
 struct LightParameters
 {
@@ -20,7 +20,7 @@ struct LightParameters
 	vec3 Specular;
 };
 
-
+uniform sampler2D tex0;
 
 // ---------------------------------------------------------------------------
 float Calculate_Shadow(vec4 fragPosLight, vec3 Light_Direction)
@@ -81,7 +81,7 @@ vec3 Calculate_DirectionalLight(vec3 lightDiffuse, vec3 lightSpecular, vec3 Ligh
 	vec3  reflectDir = reflect(lightDirection, ourNormal);
 	float specularCoeff = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3  specularPart = specularCoeff * vec3(lightSpecular);
-
+	float shadowPart;
 	// result
 	return (diffusePart + specularPart);
 }
@@ -91,6 +91,11 @@ vec3 Calculate_DirectionalLight(vec3 lightDiffuse, vec3 lightSpecular, vec3 Ligh
 // ---------------------------------------------------------------------------
 void main()
 {
+	vec4 texColor = texture( tex0, inoutUV );
+	float shadowPart = 0;
+	vec3  lightPart = vec3(0.0, 0.0, 0.0);
+	vec3  finalColor = vec3(0.0, 0.0, 0.0);
+	//outColor = texColor;
 
 	LightParameters myLight;
 
@@ -103,15 +108,19 @@ void main()
 	vec3  myColor = vec3(0.1, 1.0, 0.1);
 
 	// Skladowe
-	vec3  lightPart = Calculate_DirectionalLight(myLight.Diffuse, myLight.Specular, Light_Direction);
+	if(texColor.a > 0.1)
+	{
+		lightPart = Calculate_DirectionalLight(myLight.Diffuse, myLight.Specular, Light_Direction);
+		shadowPart = Calculate_Shadow(ourPosLight,Light_Direction);
+		finalColor = (myLight.Ambient + lightPart * (1 - shadowPart)) * myColor;
+		outColor = vec4(finalColor , 1.0) * texColor;
+	}
+	else{
+		discard;
+	}
 
-	//shadow compute
-	float shadowPart = Calculate_Shadow(ourPosLight,Light_Direction);
 
-	// Kolor finalny
-	vec3  finalColor = (myLight.Ambient + lightPart * (1 - shadowPart)) * myColor;
 
-	outColor = vec4(finalColor , 1.0);
 
 }
 

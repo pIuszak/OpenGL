@@ -38,38 +38,27 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe" -E remove -f
+RM = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Projects\OpenGL\lab5\lab5ex1
+CMAKE_SOURCE_DIR = C:\Dev\OpenGL\lab7\ex5
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Dev\OpenGL\lab7\ex5\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	"C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	"C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
+	"C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -77,11 +66,22 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	"C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -110,44 +110,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named lab5ex1
+# Target rules for targets named ex5
 
 # Build rule for target.
-lab5ex1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 lab5ex1
-.PHONY : lab5ex1
+ex5: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 ex5
+.PHONY : ex5
 
 # fast build rule for target.
-lab5ex1/fast:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/build
-.PHONY : lab5ex1/fast
+ex5/fast:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/build
+.PHONY : ex5/fast
 
-simple_texture.obj: simple_texture.cpp.obj
+collision.obj: collision.cpp.obj
 
-.PHONY : simple_texture.obj
+.PHONY : collision.obj
 
 # target to build an object file
-simple_texture.cpp.obj:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/simple_texture.cpp.obj
-.PHONY : simple_texture.cpp.obj
+collision.cpp.obj:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.obj
+.PHONY : collision.cpp.obj
 
-simple_texture.i: simple_texture.cpp.i
+collision.i: collision.cpp.i
 
-.PHONY : simple_texture.i
+.PHONY : collision.i
 
 # target to preprocess a source file
-simple_texture.cpp.i:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/simple_texture.cpp.i
-.PHONY : simple_texture.cpp.i
+collision.cpp.i:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.i
+.PHONY : collision.cpp.i
 
-simple_texture.s: simple_texture.cpp.s
+collision.s: collision.cpp.s
 
-.PHONY : simple_texture.s
+.PHONY : collision.s
 
 # target to generate assembly for a file
-simple_texture.cpp.s:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/simple_texture.cpp.s
-.PHONY : simple_texture.cpp.s
+collision.cpp.s:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/collision.cpp.s
+.PHONY : collision.cpp.s
 
 # Help Target
 help:
@@ -155,12 +155,12 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
-	@echo ... rebuild_cache
-	@echo ... lab5ex1
+	@echo ... ex5
 	@echo ... edit_cache
-	@echo ... simple_texture.obj
-	@echo ... simple_texture.i
-	@echo ... simple_texture.s
+	@echo ... rebuild_cache
+	@echo ... collision.obj
+	@echo ... collision.i
+	@echo ... collision.s
 .PHONY : help
 
 

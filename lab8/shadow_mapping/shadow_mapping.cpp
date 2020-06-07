@@ -53,7 +53,7 @@ std::vector<glm::vec2> OBJ_uvs[NUMBER_OF_BUFFERS];
 
 
 
-
+GLuint TextureID;
 
 
 // ---------------------------------------
@@ -154,13 +154,13 @@ void randTrees(){
         treesY[i] = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2) - 1)*10;
     }
 }
-
+int Frame = 1;
 // -------------------------------------------------------
 void DisplayScene()
 {
 
 
-
+    glUniform1i(glGetUniformLocation(program[SCENE], "Frame"), Frame);
     // 1. Renderowanie z pozycji swiatla do textury DepthMap
     glViewport(0, 0, DepthMap_Width, DepthMap_Height);
     glBindFramebuffer(GL_FRAMEBUFFER, DepthMap_FrameBuffer);
@@ -173,7 +173,17 @@ void DisplayScene()
 
     // 2. Renderowanie z pozycji kamery na ekran
     glViewport(0, 0, Window_Width, Window_Height);
+
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+    // 2. Wlaczanie/aktywowanie tekstur
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, TextureID);
+
+    // 3. Ustawianie tzw. samplerow zwiazanych z teksturami
+    glUniform1i(glGetUniformLocation(program[SCENE], "tex0"), 0);
 
     DrawToScreen();
 
@@ -212,7 +222,33 @@ void Initialize()
         printf("Not loaded!\n");
         exit(1);
     }
+    int width, height;
+    unsigned char* image;
+    printf("-3");
+    glEnable(GL_TEXTURE_2D);
 
+    glGenTextures(1, &TextureID);
+    glBindTexture(GL_TEXTURE_2D, TextureID);
+    printf("-2");
+    image = SOIL_load_image("flower.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    if (image == NULL)
+    {
+        printf("Blad odczytu pliku graficznego!\n");
+        exit(1);
+    }
+
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    SOIL_free_image_data(image);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+    printf("-1");
 
     // Tworzenie potoku OpenGL
     program[PROGRAM_SCENE] = glCreateProgram();
@@ -220,7 +256,7 @@ void Initialize()
     glAttachShader( program[PROGRAM_SCENE], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
     LinkAndValidateProgram( program[PROGRAM_SCENE] );
 
-
+    printf("0");
     // SCENA
     glGenVertexArrays( 1, &vArray[SCENE] );
     glBindVertexArray( vArray[SCENE] );
@@ -236,23 +272,16 @@ void Initialize()
     glBufferData( GL_ARRAY_BUFFER, OBJ_normals[SCENE].size() * sizeof(glm::vec3), &(OBJ_normals[SCENE])[0], GL_STATIC_DRAW );
     glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
     glEnableVertexAttribArray( 1 );
-    int width, height;
-    unsigned char* image;
 
-    image = SOIL_load_image("tex1-min.png", &width, &height, 0, SOIL_LOAD_RGBA);
-    if (image == NULL)
-    {
-        printf("Blad odczytu pliku graficznego!\n");
-        exit(1);
-    }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    SOIL_free_image_data(image);
-    // Inne ustawienia openGL i sceny
+    // Wspolrzedne textury UV
+    glGenBuffers( 1, &vBuffer_uvs[SCENE] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uvs[SCENE] );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[SCENE].size() * sizeof(glm::vec2), &(OBJ_uvs[SCENE])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 2 );
     glEnable( GL_DEPTH_TEST );
-
-    // Shadow mapping
-
+     //Shadow mapping
+     printf("1");
     // 1. Texture
     glGenTextures(1, &DepthMap_Texture);
     glBindTexture(GL_TEXTURE_2D, DepthMap_Texture);
@@ -269,20 +298,29 @@ void Initialize()
 
     // 2. Frame buffer object
     glGenFramebuffers(1, &DepthMap_FrameBuffer);
-
+    printf("2");
     // 3. Attaching texture to framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, DepthMap_FrameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthMap_Texture, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    printf("3");
     // 4. OpenGL program for shadow map
     // Tworzenie potoku OpenGL
     DepthMap_Program = glCreateProgram();
     glAttachShader( DepthMap_Program, LoadShader(GL_VERTEX_SHADER, "depthmap.vertex.glsl"));
     glAttachShader( DepthMap_Program, LoadShader(GL_FRAGMENT_SHADER, "depthmap.fragment.glsl"));
     LinkAndValidateProgram( DepthMap_Program );
+
+    // Inne ustawienia openGL i sceny
+    glEnable( GL_DEPTH_TEST );
+    printf("4");
+    // NOWE
+    glEnable( GL_BLEND );
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindVertexArray( vArray[SCENE] );
+    glUseProgram( program[SCENE] );
 
 }
 

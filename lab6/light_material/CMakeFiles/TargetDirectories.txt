@@ -1,3 +1,0 @@
-D:/Projects/OpenGL/lab6/light_material/CMakeFiles/light_material.dir
-D:/Projects/OpenGL/lab6/light_material/CMakeFiles/edit_cache.dir
-D:/Projects/OpenGL/lab6/light_material/CMakeFiles/rebuild_cache.dir

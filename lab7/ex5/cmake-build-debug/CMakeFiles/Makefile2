@@ -34,25 +34,25 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Users\paull\AppData\Local\JetBrains\CLion 2020.1\bin\cmake\win\bin\cmake.exe" -E remove -f
+RM = "C:\Program Files\JetBrains\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Projects\OpenGL\lab5\lab5ex1
+CMAKE_SOURCE_DIR = C:\Dev\OpenGL\lab7\ex5
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Dev\OpenGL\lab7\ex5\cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/lab5ex1.dir/all
+all: CMakeFiles/ex5.dir/all
 
 .PHONY : all
 
@@ -62,36 +62,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/lab5ex1.dir/clean
+clean: CMakeFiles/ex5.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/lab5ex1.dir
+# Target rules for target CMakeFiles/ex5.dir
 
 # All Build rule for target.
-CMakeFiles/lab5ex1.dir/all:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/depend
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles --progress-num=1,2 "Built target lab5ex1"
-.PHONY : CMakeFiles/lab5ex1.dir/all
+CMakeFiles/ex5.dir/all:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/depend
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles --progress-num=1,2 "Built target ex5"
+.PHONY : CMakeFiles/ex5.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/lab5ex1.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles 2
-	$(MAKE) -f CMakeFiles\Makefile2 CMakeFiles/lab5ex1.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\OpenGL\lab5\lab5ex1\cmake-build-debug\CMakeFiles 0
-.PHONY : CMakeFiles/lab5ex1.dir/rule
+CMakeFiles/ex5.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles 2
+	$(MAKE) -f CMakeFiles\Makefile2 CMakeFiles/ex5.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Dev\OpenGL\lab7\ex5\cmake-build-debug\CMakeFiles 0
+.PHONY : CMakeFiles/ex5.dir/rule
 
 # Convenience name for target.
-lab5ex1: CMakeFiles/lab5ex1.dir/rule
+ex5: CMakeFiles/ex5.dir/rule
 
-.PHONY : lab5ex1
+.PHONY : ex5
 
 # clean rule for target.
-CMakeFiles/lab5ex1.dir/clean:
-	$(MAKE) -f CMakeFiles\lab5ex1.dir\build.make CMakeFiles/lab5ex1.dir/clean
-.PHONY : CMakeFiles/lab5ex1.dir/clean
+CMakeFiles/ex5.dir/clean:
+	$(MAKE) -f CMakeFiles\ex5.dir\build.make CMakeFiles/ex5.dir/clean
+.PHONY : CMakeFiles/ex5.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

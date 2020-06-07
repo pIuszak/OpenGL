@@ -105,7 +105,7 @@ void DisplayScene()
 	glUniformMatrix4fv( glGetUniformLocation( program, "matView" ), 1, GL_FALSE, glm::value_ptr(matView) );
     glUniformMatrix4fv( glGetUniformLocation( program, "matModel" ), 1, GL_FALSE, glm::value_ptr(matModel) );
 
-    glUniform1i(glGetUniformLocation(program, "Frame"), Frame);
+
 	// AKTYWUJEMY tekstury
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);

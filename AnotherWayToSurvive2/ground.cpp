@@ -14,15 +14,16 @@
 
 
 enum {
-    TREE,
     SCENE,
-
+    ARMS,
+    TREE,
     NUMBER_OF_BUFFERS
 };
 
 enum {
     PROGRAM_TREE,
     PROGRAM_SCENE,
+    PROGRAM_ARMS ,
 
     NUMBER_OF_PROGRAMS
 };
@@ -48,9 +49,9 @@ glm::mat4x4 matModel(1.0);
 
 
 // ---------------------------------------
-std::vector<glm::vec3> OBJ_vertices[2];
-std::vector<glm::vec2> OBJ_uvs[2];
-std::vector<glm::vec3> OBJ_normals[2];
+std::vector<glm::vec3> OBJ_vertices[NUMBER_OF_BUFFERS];
+std::vector<glm::vec2> OBJ_uvs[NUMBER_OF_BUFFERS];
+std::vector<glm::vec3> OBJ_normals[NUMBER_OF_BUFFERS];
 
 
 GLuint TextureID[NUMBER_OF_BUFFERS];
@@ -62,6 +63,7 @@ class CSceneObject {
 public:
 
     glm::vec3 Position;     // pozycja obiektu na scenie
+    glm::vec3 Rotation;     // pozycja obiektu na scenie
 
 
     GLuint VAO;             // potok openGL
@@ -97,6 +99,11 @@ public:
     void SetPosition(float x, float y, float z) {
         Position = glm::vec3(x, y, z);
         matModel = glm::translate(glm::mat4(1.0), Position);
+
+    }
+
+    void SetRotation(float w, float x, float y, float z){
+        matModel = glm::rotate(matModel, w, glm::vec3(x, y, z));
     }
 
     // zmiana pozycji na scenie
@@ -320,7 +327,7 @@ void randTrees() {
 }
 
 CSceneObject Trees[250];
-CSceneObject Arms[10];
+CSceneObject Arms;
 
 // ---------------------------------------
 void DisplayScene() {
@@ -336,6 +343,9 @@ void DisplayScene() {
     float y = myGround.getAltitute(glm::vec2(xpos, zpos));
     //printf("XD %f", y);
     matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
+    Arms.SetPosition(xpos, y+2.0f, zpos+5);
+    Arms.SetRotation( -_scene_rotate_x,1.0f, 0.0f, 0.0f);
+    Arms.SetRotation( -_scene_rotate_y,0.0f, 1.0f, 0.0f);
 
 
 
@@ -370,18 +380,18 @@ void DisplayScene() {
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(glGetUniformLocation(program[PROGRAM_TREE], "tex0"), 0);
 
-//
-//    glUseProgram(program[PROGRAM_ARMS]);
-//
-//
-//    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matProj"), 1, GL_FALSE, glm::value_ptr(matProj));
-//    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matView"), 1, GL_FALSE, glm::value_ptr(matView));
-//    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matModel"), 1, GL_FALSE, glm::value_ptr(matModel));
-//
-//
-//    // AKTYWUJEMY tekstury
-//    glActiveTexture(GL_TEXTURE0);
-//    glUniform1i(glGetUniformLocation(program[PROGRAM_ARMS], "tex0"), 0);
+
+    glUseProgram(program[PROGRAM_ARMS]);
+
+
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matProj"), 1, GL_FALSE, glm::value_ptr(matProj));
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matView"), 1, GL_FALSE, glm::value_ptr(matView));
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_ARMS], "matModel"), 1, GL_FALSE, glm::value_ptr(matModel));
+
+
+    // AKTYWUJEMY tekstury
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(glGetUniformLocation(program[PROGRAM_ARMS], "tex0"), 0);
 
 
     // Scena
@@ -395,14 +405,14 @@ void DisplayScene() {
     glBindTexture(GL_TEXTURE_2D, TextureID[TREE]);
     //glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[TREE].size() );
 
-//    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
-//    glBindVertexArray(vArray[ARMS]);
-//    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
-//    //glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[TREE].size() );
+    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
+    glBindVertexArray(vArray[ARMS]);
+    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
+    //glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[TREE].size() );
 
-    for (int i = 0; i < 10; ++i) {
-        Arms[i].Draw();
-    }
+
+        Arms.Draw();
+
     for (int i = 0; i < 100; ++i) {
         Trees[i].Draw();
     }
@@ -493,11 +503,11 @@ void Initialize() {
     glAttachShader(program[PROGRAM_TREE], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
     LinkAndValidateProgram(program[PROGRAM_TREE]);
 
-//    // Tworzenie potoku OpenGL
-//    program[PROGRAM_ARMS] = glCreateProgram();
-//    glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_VERTEX_SHADER, "vertexTree.glsl"));
-//    glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
-//    LinkAndValidateProgram(program[PROGRAM_ARMS]);
+    // Tworzenie potoku OpenGL
+    program[PROGRAM_ARMS] = glCreateProgram();
+    glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_VERTEX_SHADER, "vertexTree.glsl"));
+    glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
+    LinkAndValidateProgram(program[PROGRAM_ARMS]);
 
 
     // SCENA
@@ -562,43 +572,43 @@ void Initialize() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 
-//    /// arms
-//    // SPHERE
-//    if (!loadOBJ("arms.obj", OBJ_vertices[ARMS], OBJ_uvs[ARMS], OBJ_normals[ARMS])) {
-//        printf("Not loaded!\n");
-//        exit(1);
-//    }
+    /// arms
+    // SPHERE
+    if (!loadOBJ("arms.obj", OBJ_vertices[ARMS], OBJ_uvs[ARMS], OBJ_normals[ARMS])) {
+        printf("Not loaded!\n");
+        exit(1);
+    }
 
 
     // Vertex arrays
-//    glGenVertexArrays(1, &vArray[ARMS]);
-//    glBindVertexArray(vArray[ARMS]);
-//
-//    glGenBuffers(1, &vBuffer_pos[ARMS]);
-//    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[ARMS]);
-//    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[ARMS].size() * sizeof(glm::vec3), &(OBJ_vertices[ARMS])[0],
-//                 GL_STATIC_DRAW);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-//    glEnableVertexAttribArray(0);
-//
-//    glGenBuffers(1, &vBuffer_uv[ARMS]);
-//    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[ARMS]);
-//    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[ARMS].size() * sizeof(glm::vec2), &(OBJ_uvs[ARMS])[0], GL_STATIC_DRAW);
-//    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-//    glEnableVertexAttribArray(1);
-//    glBindVertexArray(0);
+    glGenVertexArrays(1, &vArray[ARMS]);
+    glBindVertexArray(vArray[ARMS]);
 
-//    loadBMP_custom("grass.bmp", tex_width, tex_height, &tex_data);
-//
-//    glGenTextures(1, &TextureID[ARMS]);
-//    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_BGR, GL_UNSIGNED_BYTE, tex_data);
-//    glGenerateMipmap(GL_TEXTURE_2D);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenBuffers(1, &vBuffer_pos[ARMS]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[ARMS]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[ARMS].size() * sizeof(glm::vec3), &(OBJ_vertices[ARMS])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &vBuffer_uv[ARMS]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[ARMS]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[ARMS].size() * sizeof(glm::vec2), &(OBJ_uvs[ARMS])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
+
+    loadBMP_custom("grass.bmp", tex_width, tex_height, &tex_data);
+
+    glGenTextures(1, &TextureID[ARMS]);
+    glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_BGR, GL_UNSIGNED_BYTE, tex_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 
 
@@ -606,15 +616,11 @@ void Initialize() {
     // Ziemia
     myGround.CreateFromOBJ(OBJ_vertices[SCENE]);
 
-//
-//    for (int i = 0; i < 10; ++i) {
-//
-//        Arms[i].Set(program[SCENE], vArray[ARMS], OBJ_vertices[ARMS].size());
-//
-//        Arms[i].SetPosition(1.0, 1.0, 1.0);
-//
-//
-//    }
+
+
+
+        Arms.Set(program[SCENE], vArray[ARMS], OBJ_vertices[ARMS].size());
+        //Arms.SetPosition(1.0, 10.0, 1.0);
 
 
     // Inicjalizacja obiektow

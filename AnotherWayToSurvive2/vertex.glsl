@@ -16,6 +16,15 @@ out vec2 inoutUV;
 out vec4 ourPosLight;
 out vec3 ourNormal;
 
+// struktura danych wyjsciowych
+out VS_OUT
+{
+	vec4 coord;
+//	vec4 color;
+
+} vs_out;
+
+
 void main()
 {
 	gl_Position = matProj * matView * matModel * inPosition;
@@ -23,4 +32,5 @@ void main()
 	ourPosLight = lightProj * lightView * inPosition;
 	ourNormal = inNormal;
 	inoutUV = inUV;
+	vs_out.coord = inPosition;
 }

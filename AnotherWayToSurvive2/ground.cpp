@@ -11,7 +11,7 @@
 #include "obj_loader.hpp"
 #include "texture_loader.hpp"
 #include "shader_stuff.h"
-
+#include "text.h"
 void UpdateZombie(float step);
 enum {
     SCENE,
@@ -190,7 +190,7 @@ public:
     CSceneObject() {
     }
 
-
+    float radius = 2.0f;
     // ustawienie potoku
     void Set(GLuint _prog, GLuint _vao, int _size) {
         Program = _prog;
@@ -225,6 +225,15 @@ public:
     void MoveXZ(float _x, float _z) {
         Position += glm::vec3(_x, 0.0, _z);
         matModel = glm::translate(glm::mat4(1.0), Position);
+    }
+
+    bool isCollision(const CSceneObject &other){
+        float dist = glm::distance(this->Position,other.Position);
+        if (dist < this->radius + other.radius){
+
+            return true;
+        }
+        return false;
     }
 
 };
@@ -443,7 +452,27 @@ void randTrees() {
 
 CSceneObject Trees[250];
 CSceneObject Arms;
+CSceneObject myCharacterCollider;
+bool isCollision = false;
 
+int CalculateFrameRate()
+{
+    static float framesPerSecond = 0.0f;
+    static int fps;
+    static float lastTime = 0.0f;
+    float currentTime = GetTickCount() * 0.001f;
+    ++framesPerSecond;
+
+    if (currentTime - lastTime > 1.0f)
+    {
+        lastTime = currentTime;
+        fps = (int)framesPerSecond;
+        framesPerSecond = 0;
+    }
+    return fps;
+
+}
+int frame = 0;
 // ---------------------------------------
 void DisplayScene() {
 
@@ -464,14 +493,17 @@ void DisplayScene() {
     matView = glm::rotate(matView, _scene_rotate_y, glm::vec3(0.0f, 1.0f, 0.0f));
 
     matView = glm::translate(matView, glm::vec3(_scene_translate_x, 0, _scene_translate_z));
+    if (!isCollision){
+        float y = myGround.getAltitute(glm::vec2(xpos, zpos));
+        //printf("XD %f", y);
+        matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
+        Arms.SetPosition(xpos, y+2.0f, zpos+5);
+        Arms.SetRotation( -_scene_rotate_x,1.0f, 0.0f, 0.0f);
+        Arms.SetRotation( -_scene_rotate_y,0.0f, 1.0f, 0.0f);
+        myCharacterCollider.SetPosition(xpos, y+2.0f, zpos+5);
+    }else{
 
-    float y = myGround.getAltitute(glm::vec2(xpos, zpos));
-    //printf("XD %f", y);
-    matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
-    Arms.SetPosition(xpos, y+2.0f, zpos+5);
-    Arms.SetRotation( -_scene_rotate_x,1.0f, 0.0f, 0.0f);
-    Arms.SetRotation( -_scene_rotate_y,0.0f, 1.0f, 0.0f);
-
+    }
 
     Camera_Position = ExtractCameraPos(matView);
 
@@ -556,11 +588,32 @@ void DisplayScene() {
 
     for (int i = 0; i < 100; ++i) {
         Trees[i].Draw();
+        if (Trees[i].isCollision(myCharacterCollider))
+        {
+            printf("DRZEWO");
+            isCollision= true;
+            break;
+        }else{
+            isCollision= false;
+        }
     }
     Torso.Draw(program[SCENE]);
-    UpdateZombie(0.1);
-    // WYLACZAMY program
-    glUseProgram(0);
+
+
+    glUseProgram( 0 );
+    glBindVertexArray( 0 );
+
+
+    DrawText8x16( 3, 3, "Staly tekst" );
+
+    char txt[255];
+
+    sprintf(txt, "AVG FPS  %d!", CalculateFrameRate());
+    frame++;
+    DrawText8x16( 3, 21, txt, glm::vec4(1.0, 1.0, 0.0, 1.0) );
+
+    DrawText8x16( 300, 3, "ESC - Wyjscie" );
+
 
 
     glutSwapBuffers();
@@ -582,44 +635,46 @@ void UpdateZombie(float step){
     if(leftLeg1 > -0.5){
         LeftLeg.Obroc(- step, 1.0, 0.0, 0.0);
         RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
-        leftLeg1-= 0.1;
+        leftLeg1-= step;
         return;
     }
 
     if(rightLeg1 > -0.5){
         LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
         RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
-        rightLeg1-= 0.1;
+        rightLeg1-= step;
         return;
     }
 
     if(leftLeg2 <= 0.5){
         LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
         RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
-        leftLeg2+= 0.1;
+        leftLeg2+= step;
         return;
     }
     if(rightLeg2 <= 0.5){
         LeftLeg.Obroc(-step, 1.0, 0.0, 0.0);
         RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
-        rightLeg2+= 0.1;
+        rightLeg2+= step;
         return;
     }
-
+     leftLeg1 = 0;
+     leftLeg2 = 0;
+     rightLeg1 =0;
+     rightLeg2= 0;
 
 
 }
 void UpdateWindMill(){
 
-        PropellerMain.Obroc(0.01, 0.0, 0.0, 1.0);
+        PropellerMain.Obroc(0.001, 0.0, 0.0, 1.0);
 
-        PropellerSecondary.Obroc(-0.05, 0.0, 0.0, 1.0);
+        PropellerSecondary.Obroc(-0.005, 0.0, 0.0, 1.0);
 }
 // --------------------------------------------------------------
 void Keyboard(unsigned char key, int x, int y) {
 
 
-    UpdateWindMill();
     switch (key) {
         case 27:    // ESC key
             exit(0);
@@ -766,7 +821,7 @@ void Initialize() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-
+    InitDrawText();
     /// arms
     // SPHERE
     if (!loadOBJ("arms.obj", OBJ_vertices[ARMS], OBJ_uvs[ARMS], OBJ_normals[ARMS])) {
@@ -1066,11 +1121,18 @@ void Initialize() {
 
 }
 //s
-
+void Animation(int frame)
+{
+    glutTimerFunc(5, Animation, 0);
+    UpdateWindMill();
+    UpdateZombie(0.005);
+    glutPostRedisplay();
+}
 
 // ---------------------------------------------------
 int main(int argc, char *argv[]) {
     randTrees();
+
     // GLUT
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -1102,7 +1164,7 @@ int main(int argc, char *argv[]) {
     glutMouseWheelFunc(MouseWheel);
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(SpecialKeys);
-
+    glutTimerFunc(5, Animation, 0);
     glutMainLoop();
 
 

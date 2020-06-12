@@ -22,6 +22,13 @@ struct LightParameters
 
 uniform sampler2D tex0;
 
+in VS_OUT
+{
+	vec4 coord;
+//	vec4 color;
+} fs_in;
+
+
 // ---------------------------------------------------------------------------
 float Calculate_Shadow(vec4 fragPosLight, vec3 Light_Direction)
 {

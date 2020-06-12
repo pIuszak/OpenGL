@@ -25,6 +25,8 @@ texture_loader.hpp
 C:/Dev/OpenGL/AnotherWayToSurvive2/texture_loader.hpp
 shader_stuff.h
 C:/Dev/OpenGL/AnotherWayToSurvive2/shader_stuff.h
+text.h
+C:/Dev/OpenGL/AnotherWayToSurvive2/text.h
 
 C:/Dev/OpenGL/AnotherWayToSurvive2/obj_loader.hpp
 vector
@@ -40,6 +42,12 @@ glm/glm.hpp
 
 C:/Dev/OpenGL/AnotherWayToSurvive2/shader_stuff.h
 fstream
+-
+
+C:/Dev/OpenGL/AnotherWayToSurvive2/text.h
+string
+-
+glm/glm.hpp
 -
 
 C:/Dev/OpenGL/AnotherWayToSurvive2/texture_loader.hpp

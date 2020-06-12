@@ -4,5 +4,6 @@
 CMakeFiles/AnotherWayToSurvive2.dir/ground.cpp.obj: ground.cpp
 CMakeFiles/AnotherWayToSurvive2.dir/ground.cpp.obj: obj_loader.hpp
 CMakeFiles/AnotherWayToSurvive2.dir/ground.cpp.obj: shader_stuff.h
+CMakeFiles/AnotherWayToSurvive2.dir/ground.cpp.obj: text.h
 CMakeFiles/AnotherWayToSurvive2.dir/ground.cpp.obj: texture_loader.hpp
 

@@ -12,8 +12,8 @@ out vec2 inoutUV;
 
 void main()
 {
-	gl_Position = Matrix_proj_mv * matModel * inPosition;
+    gl_Position = Matrix_proj_mv * matModel * inPosition;
 
-	inoutPos = inPosition;
-	inoutUV = inUV;
+    inoutPos = inPosition;
+    inoutUV = inUV;
 }

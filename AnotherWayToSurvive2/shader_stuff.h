@@ -115,18 +115,18 @@ void MouseMotion( int x, int y )
 // --------------------------------------------------------------
 void MouseWheel(int button, int dir, int x, int y)
 {
-    if (dir > 0)
-    {
-        // Zoom in
-        _scene_translate_z += 0.5f;
-    }
-    else
-    {
-        // Zoom out
-        _scene_translate_z -= 0.5f;
-    }
-
-    glutPostRedisplay();
+//    if (dir > 0)
+//    {
+//        // Zoom in
+//        _scene_translate_z += 0.5f;
+//    }
+//    else
+//    {
+//        // Zoom out
+//        _scene_translate_z -= 0.5f;
+//    }
+//
+//    glutPostRedisplay();
 }
 
 

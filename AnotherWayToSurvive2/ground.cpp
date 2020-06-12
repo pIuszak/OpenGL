@@ -12,7 +12,7 @@
 #include "texture_loader.hpp"
 #include "shader_stuff.h"
 
-
+void UpdateZombie(float step);
 enum {
     SCENE,
     ARMS,
@@ -20,6 +20,9 @@ enum {
     TORSO,
     LEG_R,
     LEG_L,
+    WINDMILL,
+    PROPELLER_MAIN,
+    PROPELLER_SECONDARY,
     NUMBER_OF_BUFFERS
 };
 
@@ -165,7 +168,9 @@ CBone RightArm;
 CBone RightLeg;
 CBone LeftArm;
 CBone LeftLeg;
-
+CBone Windmill;
+CBone PropellerMain;
+CBone PropellerSecondary;
 
 // ----------------------------------------------------------------
 class CSceneObject {
@@ -547,12 +552,13 @@ void DisplayScene() {
 
 
         Arms.Draw();
+        Windmill.Draw(program[SCENE]);
 
     for (int i = 0; i < 100; ++i) {
         Trees[i].Draw();
     }
     Torso.Draw(program[SCENE]);
-
+    UpdateZombie(0.1);
     // WYLACZAMY program
     glUseProgram(0);
 
@@ -566,13 +572,54 @@ void Reshape(int width, int height) {
     glViewport(0, 0, width, height);
     matProj = glm::perspectiveFov(glm::radians(60.0f), (float) width, (float) height, 0.1f, 100.f);
 }
+
 float leftLeg1 = 0;
 float leftLeg2 = 0;
 float rightLeg1;
 float rightLeg2;
+void UpdateZombie(float step){
+
+    if(leftLeg1 > -0.5){
+        LeftLeg.Obroc(- step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
+        leftLeg1-= 0.1;
+        return;
+    }
+
+    if(rightLeg1 > -0.5){
+        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
+        rightLeg1-= 0.1;
+        return;
+    }
+
+    if(leftLeg2 <= 0.5){
+        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
+        leftLeg2+= 0.1;
+        return;
+    }
+    if(rightLeg2 <= 0.5){
+        LeftLeg.Obroc(-step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
+        rightLeg2+= 0.1;
+        return;
+    }
+
+
+
+}
+void UpdateWindMill(){
+
+        PropellerMain.Obroc(0.01, 0.0, 0.0, 1.0);
+
+        PropellerSecondary.Obroc(-0.05, 0.0, 0.0, 1.0);
+}
 // --------------------------------------------------------------
 void Keyboard(unsigned char key, int x, int y) {
 
+
+    UpdateWindMill();
     switch (key) {
         case 27:    // ESC key
             exit(0);
@@ -593,43 +640,8 @@ void Keyboard(unsigned char key, int x, int y) {
 
 
 
+
         case 'x':
-
-            if(leftLeg1 > -0.5){
-                LeftLeg.Obroc(-0.1, 1.0, 0.0, 0.0);
-                RightLeg.Obroc(0.2, 1.0, 0.0, 0.0);
-                leftLeg1-= 0.1;
-                printf("1");
-                break;
-            }
-
-            if(rightLeg1 > -0.5){
-                LeftLeg.Obroc(0.1, 1.0, 0.0, 0.0);
-                RightLeg.Obroc(-0.2, 1.0, 0.0, 0.0);
-                rightLeg1-= 0.1;
-                printf("2");
-                break;
-            }
-
-            if(leftLeg2 <= 0.5){
-                LeftLeg.Obroc(0.1, 1.0, 0.0, 0.0);
-                RightLeg.Obroc(-0.2, 1.0, 0.0, 0.0);
-                leftLeg2+= 0.1;
-                printf("3");
-                break;
-            }
-            if(rightLeg2 <= 0.5){
-                LeftLeg.Obroc(-0.1, 1.0, 0.0, 0.0);
-                RightLeg.Obroc(0.2, 1.0, 0.0, 0.0);
-                rightLeg2+= 0.1;
-                printf("4");
-                break;
-            }
-
-            leftLeg2= 0;
-            leftLeg1= 0;
-            rightLeg2= 0;
-            rightLeg1= 0;
 
             break;
 
@@ -919,6 +931,93 @@ void Initialize() {
 
     //RightArm.Obroc(-0.5, 0.0, 1.0, 0.0);
     //PropellerSecondary.Obroc(0.6, 0.0, 0.0, 1.0);
+
+
+
+    if (!loadOBJ("windmillbase.obj", OBJ_vertices[WINDMILL], OBJ_uvs[WINDMILL], OBJ_normals[WINDMILL]))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
+    // Vertex arrays
+    glGenVertexArrays( 1, &vArray[WINDMILL] );
+    glBindVertexArray( vArray[WINDMILL] );
+
+    glGenBuffers( 1, &vBuffer_pos[WINDMILL] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[WINDMILL] );
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[WINDMILL].size() * sizeof(glm::vec3), &(OBJ_vertices[WINDMILL])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 0 );
+
+    glGenBuffers( 1, &vBuffer_uv[WINDMILL] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[WINDMILL] );
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[WINDMILL].size() * sizeof(glm::vec2), &(OBJ_uvs[WINDMILL])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 1 );
+    glBindVertexArray( 0 );
+
+
+    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_MAIN], OBJ_uvs[PROPELLER_MAIN], OBJ_normals[PROPELLER_MAIN]))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
+    // Vertex arrays
+    glGenVertexArrays( 1, &vArray[PROPELLER_MAIN] );
+    glBindVertexArray( vArray[PROPELLER_MAIN] );
+
+    glGenBuffers( 1, &vBuffer_pos[PROPELLER_MAIN] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_MAIN] );
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_MAIN].size() * sizeof(glm::vec3), &(OBJ_vertices[PROPELLER_MAIN])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 0 );
+
+    glGenBuffers( 1, &vBuffer_uv[PROPELLER_MAIN] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_MAIN] );
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_MAIN].size() * sizeof(glm::vec2), &(OBJ_uvs[PROPELLER_MAIN])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 1 );
+    glBindVertexArray( 0 );
+
+
+    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_SECONDARY], OBJ_uvs[PROPELLER_SECONDARY], OBJ_normals[PROPELLER_SECONDARY]))
+    {
+        printf("Not loaded!\n");
+        exit(1);
+    }
+    // Vertex arrays
+    glGenVertexArrays( 1, &vArray[PROPELLER_SECONDARY] );
+    glBindVertexArray( vArray[PROPELLER_SECONDARY] );
+
+    glGenBuffers( 1, &vBuffer_pos[PROPELLER_SECONDARY] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_SECONDARY] );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_SECONDARY].size() * sizeof(glm::vec3), &(OBJ_vertices[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 0 );
+
+    glGenBuffers( 1, &vBuffer_uv[PROPELLER_SECONDARY] );
+    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_SECONDARY] );
+    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_SECONDARY].size() * sizeof(glm::vec2), &(OBJ_uvs[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+    glEnableVertexAttribArray( 1 );
+    glBindVertexArray( 0 );
+
+
+    // 1. Stworzenie kosci
+    Windmill.Set(vArray[WINDMILL], OBJ_vertices[WINDMILL].size() );
+    PropellerMain.Set(vArray[PROPELLER_MAIN], OBJ_vertices[PROPELLER_MAIN].size() );
+    PropellerSecondary.Set(vArray[PROPELLER_SECONDARY], OBJ_vertices[PROPELLER_SECONDARY].size() );
+
+    // 2. Ustalenie hierarchii
+    Windmill.next = &PropellerMain;
+    PropellerMain.next = &PropellerSecondary;
+
+
+    Windmill.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0, 7.4, -35));
+    // 3. Ustawlenie rozmieszczenia obiektow wzgledem bazowego
+    PropellerMain.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 15.0, 1.5*3.0));
+    PropellerSecondary.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.5*3.0));
+    PropellerSecondary.Obroc(0.6, 0.0, 0.0, 1.0);
 
     // ---------- SHADOW MAPPING------------
 

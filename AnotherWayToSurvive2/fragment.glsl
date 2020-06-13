@@ -112,14 +112,13 @@ void main()
 	myLight.Specular = vec3(0.5, 0.5, 0.5);
 
 	// Kolor wyjsciowy
-	vec3  myColor = vec3(0.1, 1.0, 0.1);
-
+	//vec3  myColor = ;
 	// Skladowe
 	if(texColor.a > 0.1)
 	{
 		lightPart = Calculate_DirectionalLight(myLight.Diffuse, myLight.Specular, Light_Direction);
 		shadowPart = Calculate_Shadow(ourPosLight,Light_Direction);
-		finalColor = (myLight.Ambient + lightPart * (1 - shadowPart)) * myColor;
+		finalColor = (myLight.Ambient + lightPart * (1 - shadowPart));
 		outColor = vec4(finalColor , 1.0) * texColor;
 	}
 	else{

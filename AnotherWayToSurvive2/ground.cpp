@@ -12,7 +12,11 @@
 #include "texture_loader.hpp"
 #include "shader_stuff.h"
 #include "text.h"
+
 void UpdateZombie(float step);
+
+class CGround;
+
 enum {
     SCENE,
     ARMS,
@@ -29,14 +33,15 @@ enum {
 enum {
     PROGRAM_TREE,
     PROGRAM_SCENE,
-    PROGRAM_ARMS ,
-
+    PROGRAM_ARMS,
+    PROGRAM_TORSO,
     NUMBER_OF_PROGRAMS
 };
 
 //angle of rotation
 float xpos = 0, ypos = 0, zpos = 0, angle = 0.0;
-
+int GLOBAL_argc;
+char *GLOBAL_argv[10000];
 float lastx, lasty;
 
 
@@ -48,9 +53,8 @@ glm::vec3 Camera_Position;
 glm::mat4 lightProj = glm::ortho(-30.0f, 30.0f, -30.0f, 40.0f, 1.0f, 40.5f);
 
 glm::mat4 lightView = glm::lookAt(Light_Position,
-                                  Light_Position+Light_Direction,
-                                  glm::vec3( 0.0f, 1.0f,  0.0f));
-
+                                  Light_Position + Light_Direction,
+                                  glm::vec3(0.0f, 1.0f, 0.0f));
 
 
 // ---------------------------------------
@@ -85,17 +89,17 @@ std::vector<glm::vec3> OBJ_normals[NUMBER_OF_BUFFERS];
 
 
 GLuint TextureID[NUMBER_OF_BUFFERS];
-void DrawShadowMap()
-{
+
+void DrawShadowMap() {
     // AKTYWUJEMY program
-    glUseProgram( DepthMap_Program );
+    glUseProgram(DepthMap_Program);
 
-    glUniformMatrix4fv( glGetUniformLocation( DepthMap_Program, "lightProj" ), 1, GL_FALSE, glm::value_ptr(lightProj) );
-    glUniformMatrix4fv( glGetUniformLocation( DepthMap_Program, "lightView" ), 1, GL_FALSE, glm::value_ptr(lightView) );
+    glUniformMatrix4fv(glGetUniformLocation(DepthMap_Program, "lightProj"), 1, GL_FALSE, glm::value_ptr(lightProj));
+    glUniformMatrix4fv(glGetUniformLocation(DepthMap_Program, "lightView"), 1, GL_FALSE, glm::value_ptr(lightView));
 
-    glBindVertexArray( vArray[SCENE] );
-    glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[SCENE].size() );
-    glBindVertexArray( 0 );
+    glBindVertexArray(vArray[SCENE]);
+    glDrawArrays(GL_TRIANGLES, 0, OBJ_vertices[SCENE].size());
+    glBindVertexArray(0);
 
 
     // WYLACZAMY program
@@ -104,8 +108,7 @@ void DrawShadowMap()
 }
 
 // -----------------------------------------
-class CBone
-{
+class CBone {
 
 public:
 
@@ -121,46 +124,46 @@ public:
     CBone *next = NULL;
 
     // ustawienie potoku
-    void Set(GLuint _vao, int _size)
-    {
+    void Set(GLuint _vao, int _size) {
         matModel = glm::mat4(1.0);
         VAO = _vao;
         VBO_Size = _size;
     }
 
     // rysowanie na scenie
-    void Draw(GLuint _prog, glm::mat4 _stackModel = glm::mat4(1.0))
-    {
+    void Draw(GLuint _prog, glm::mat4 _stackModel = glm::mat4(1.0)) {
 
         glm::mat4 localModel = _stackModel * matModel;
 
-        glUniformMatrix4fv( glGetUniformLocation( _prog, "matModel" ), 1, GL_FALSE, glm::value_ptr(localModel) );
+        glUniformMatrix4fv(glGetUniformLocation(_prog, "matModel"), 1, GL_FALSE, glm::value_ptr(localModel));
 
-        glBindVertexArray( VAO );
-        glDrawArrays( GL_TRIANGLES, 0, VBO_Size );
-        glBindVertexArray( 0 );
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, VBO_Size);
+        glBindVertexArray(0);
 
-        if(next)
-        {
+        if (next) {
             next->Draw(_prog, localModel);
         }
 
     }
 
-    void Obroc(float angle, float x, float y, float z)
-    {
+    void Obroc(float angle, float x, float y, float z) {
         this->matModel = glm::rotate(matModel, angle, glm::vec3(x, y, z));
     }
 
-    void Przesun(float x, float y, float z)
-    {
+    void Przesun(float x, float y, float z) {
 
         this->matModel = glm::translate(matModel, glm::vec3(x, y, z));
     }
 
+//    void SetPosition(float x, float y, float z)
+//    {
+//
+//        this->matModel = glm::translate(matModel, glm::vec3(-xpos, -new_y - 2, -zpos));
+//    }
+
 
 };
-
 
 
 CBone Torso;
@@ -191,6 +194,7 @@ public:
     }
 
     float radius = 2.0f;
+
     // ustawienie potoku
     void Set(GLuint _prog, GLuint _vao, int _size) {
         Program = _prog;
@@ -217,7 +221,7 @@ public:
 
     }
 
-    void SetRotation(float w, float x, float y, float z){
+    void SetRotation(float w, float x, float y, float z) {
         matModel = glm::rotate(matModel, w, glm::vec3(x, y, z));
     }
 
@@ -227,9 +231,9 @@ public:
         matModel = glm::translate(glm::mat4(1.0), Position);
     }
 
-    bool isCollision(const CSceneObject &other){
-        float dist = glm::distance(this->Position,other.Position);
-        if (dist < this->radius + other.radius){
+    bool isCollision(const CSceneObject &other) {
+        float dist = glm::distance(this->Position, other.Position);
+        if (dist < this->radius + other.radius) {
 
             return true;
         }
@@ -307,7 +311,6 @@ public:
     }
 
 };
-
 
 // ---------------------------------------
 class CGround {
@@ -455,24 +458,24 @@ CSceneObject Arms;
 CSceneObject myCharacterCollider;
 bool isCollision = false;
 
-int CalculateFrameRate()
-{
+int CalculateFrameRate() {
     static float framesPerSecond = 0.0f;
     static int fps;
     static float lastTime = 0.0f;
     float currentTime = GetTickCount() * 0.001f;
     ++framesPerSecond;
 
-    if (currentTime - lastTime > 1.0f)
-    {
+    if (currentTime - lastTime > 1.0f) {
         lastTime = currentTime;
-        fps = (int)framesPerSecond;
+        fps = (int) framesPerSecond;
         framesPerSecond = 0;
     }
     return fps;
 
 }
+
 int frame = 0;
+
 // ---------------------------------------
 void DisplayScene() {
 
@@ -500,15 +503,13 @@ void DisplayScene() {
     }
 
 
-        float y = myGround.getAltitute(glm::vec2(xpos, zpos));
-        //printf("XD %f", y);
-        matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
-        Arms.SetPosition(xpos, y+2.0f, zpos+5);
-        Arms.SetRotation( -_scene_rotate_x,1.0f, 0.0f, 0.0f);
-        Arms.SetRotation( -_scene_rotate_y,0.0f, 1.0f, 0.0f);
-        myCharacterCollider.SetPosition(xpos, y+2.0f, zpos+5);
-
-
+    float y = myGround.getAltitute(glm::vec2(xpos, zpos));
+    //printf("XD %f", y);
+    matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
+    Arms.SetPosition(xpos, y + 2.0f, zpos + 5);
+    Arms.SetRotation(-_scene_rotate_x, 1.0f, 0.0f, 0.0f);
+    Arms.SetRotation(-_scene_rotate_y, 0.0f, 1.0f, 0.0f);
+    myCharacterCollider.SetPosition(xpos, y + 2.0f, zpos + 5);
 
 
     Camera_Position = ExtractCameraPos(matView);
@@ -527,19 +528,21 @@ void DisplayScene() {
     glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_SCENE], "matView"), 1, GL_FALSE, glm::value_ptr(matView));
     glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_SCENE], "matModel"), 1, GL_FALSE, glm::value_ptr(matModel));
 
-    glUniformMatrix4fv( glGetUniformLocation( program[PROGRAM_SCENE], "lightProj" ), 1, GL_FALSE, glm::value_ptr(lightProj) );
-    glUniformMatrix4fv( glGetUniformLocation( program[PROGRAM_SCENE], "lightView" ), 1, GL_FALSE, glm::value_ptr(lightView) );
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_SCENE], "lightProj"), 1, GL_FALSE,
+                       glm::value_ptr(lightProj));
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_SCENE], "lightView"), 1, GL_FALSE,
+                       glm::value_ptr(lightView));
 
 
     // Swiatlo kierunkowe
-    glUniform3fv( glGetUniformLocation( program[PROGRAM_SCENE], "Light_Direction" ), 1, glm::value_ptr(Light_Direction) );
-    glUniform3fv( glGetUniformLocation( program[PROGRAM_SCENE], "Camera_Position" ), 1, glm::value_ptr(Camera_Position) );
+    glUniform3fv(glGetUniformLocation(program[PROGRAM_SCENE], "Light_Direction"), 1, glm::value_ptr(Light_Direction));
+    glUniform3fv(glGetUniformLocation(program[PROGRAM_SCENE], "Camera_Position"), 1, glm::value_ptr(Camera_Position));
 
 
     // Shadow map textura na slot 1
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, DepthMap_Texture);
-    glUniform1i(glGetUniformLocation( program[PROGRAM_SCENE], "shadowMap" ), 1);
+    glUniform1i(glGetUniformLocation(program[PROGRAM_SCENE], "shadowMap"), 1);
 
 
     // AKTYWUJEMY tekstury
@@ -557,6 +560,19 @@ void DisplayScene() {
     // AKTYWUJEMY tekstury
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(glGetUniformLocation(program[PROGRAM_TREE], "tex0"), 0);
+
+
+    glUseProgram(program[PROGRAM_TORSO]);
+
+
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_TORSO], "matProj"), 1, GL_FALSE, glm::value_ptr(matProj));
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_TORSO], "matView"), 1, GL_FALSE, glm::value_ptr(matView));
+    glUniformMatrix4fv(glGetUniformLocation(program[PROGRAM_TORSO], "matModel"), 1, GL_FALSE, glm::value_ptr(matModel));
+
+
+    // AKTYWUJEMY tekstury
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(glGetUniformLocation(program[PROGRAM_TORSO], "tex0"), 0);
 
 
     glUseProgram(program[PROGRAM_ARMS]);
@@ -583,50 +599,50 @@ void DisplayScene() {
     glBindTexture(GL_TEXTURE_2D, TextureID[TREE]);
     //glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[TREE].size() );
 
+    glBindTexture(GL_TEXTURE_2D, TextureID[TORSO]);
+    glBindVertexArray(vArray[TORSO]);
+    glBindTexture(GL_TEXTURE_2D, TextureID[TORSO]);
+
     glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
     glBindVertexArray(vArray[ARMS]);
     glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
     //glDrawArrays( GL_TRIANGLES, 0, OBJ_vertices[TREE].size() );
 
 
-        Arms.Draw();
-        Windmill.Draw(program[SCENE]);
-
+    Arms.Draw();
+    Windmill.Draw(program[SCENE]);
 
 
     for (int i = 0; i < 100; ++i) {
         Trees[i].Draw();
-        if (Trees[i].isCollision(myCharacterCollider))
-        {
+        if (Trees[i].isCollision(myCharacterCollider)) {
             printf("DRZEWO");
-            isCollision= true;
+            isCollision = true;
             break;
-        }else{
-            isCollision= false;
+        } else {
+            isCollision = false;
         }
     }
     Torso.Draw(program[SCENE]);
 
 
-    glUseProgram( 0 );
-    glBindVertexArray( 0 );
+    glUseProgram(0);
+    glBindVertexArray(0);
 
 
-    DrawText8x16( 3, 3, "Staly tekst" );
+    DrawText8x16(3, 3, "Staly tekst");
 
     char txt[255];
 
     sprintf(txt, "AVG FPS  %d!", CalculateFrameRate());
     frame++;
-    DrawText8x16( 3, 21, txt, glm::vec4(1.0, 1.0, 0.0, 1.0) );
+    DrawText8x16(3, 21, txt, glm::vec4(1.0, 1.0, 0.0, 1.0));
 
-    DrawText8x16( 300, 3, "ESC - Wyjscie" );
-
+    DrawText8x16(300, 3, "ESC - Wyjscie");
 
 
     glutSwapBuffers();
 }
-
 
 // ---------------------------------------
 void Reshape(int width, int height) {
@@ -638,47 +654,107 @@ float leftLeg1 = 0;
 float leftLeg2 = 0;
 float rightLeg1;
 float rightLeg2;
-void UpdateZombie(float step){
+float zombiePosX1;
+float zombiePosX2;
+float zombiePosZ1;
+float zombiePosZ2;
+float rot = 0;
 
-    if(leftLeg1 > -0.5){
-        LeftLeg.Obroc(- step, 1.0, 0.0, 0.0);
-        RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
-        leftLeg1-= step;
-        return;
-    }
+void UpdateZombieAnimation(float step) {
 
-    if(rightLeg1 > -0.5){
-        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
-        RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
-        rightLeg1-= step;
-        return;
-    }
-
-    if(leftLeg2 <= 0.5){
-        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
-        RightLeg.Obroc(-step*2, 1.0, 0.0, 0.0);
-        leftLeg2+= step;
-        return;
-    }
-    if(rightLeg2 <= 0.5){
+    // Leg Animation
+    if (leftLeg1 > -0.5) {
         LeftLeg.Obroc(-step, 1.0, 0.0, 0.0);
-        RightLeg.Obroc(step*2, 1.0, 0.0, 0.0);
-        rightLeg2+= step;
+        RightLeg.Obroc(step * 2, 1.0, 0.0, 0.0);
+        leftLeg1 -= step;
         return;
     }
-     leftLeg1 = 0;
-     leftLeg2 = 0;
-     rightLeg1 =0;
-     rightLeg2= 0;
-
+    if (rightLeg1 > -0.5) {
+        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(-step * 2, 1.0, 0.0, 0.0);
+        rightLeg1 -= step;
+        return;
+    }
+    if (leftLeg2 <= 0.5) {
+        LeftLeg.Obroc(step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(-step * 2, 1.0, 0.0, 0.0);
+        leftLeg2 += step;
+        return;
+    }
+    if (rightLeg2 <= 0.5) {
+        LeftLeg.Obroc(-step, 1.0, 0.0, 0.0);
+        RightLeg.Obroc(step * 2, 1.0, 0.0, 0.0);
+        rightLeg2 += step;
+        return;
+    }
+    leftLeg1 = 0;
+    leftLeg2 = 0;
+    rightLeg1 = 0;
+    rightLeg2 = 0;
 
 }
-void UpdateWindMill(){
 
-        PropellerMain.Obroc(0.001, 0.0, 0.0, 1.0);
+void UpdateZombieMovement(float step) {
 
-        PropellerSecondary.Obroc(-0.005, 0.0, 0.0, 1.0);
+    if (zombiePosX1 < 10) {
+        zombiePosX1 += step;
+        if (rot < 1.5) {
+            Torso.Obroc(step, 0.0, 1.0, 0.0);
+            rot += step;
+        }
+        // Torso.matModel = glm::translate(glm::mat4(1.0), glm::vec3(zombiePosX1, 5, zombiePosZ1));
+        Torso.Przesun(0, 0, step);
+        return;
+    }
+    if (zombiePosZ1 < 10) {
+        zombiePosZ1 += step;
+        if (rot < 3) {
+            Torso.Obroc(step, 0.0, 1.0, 0.0);
+            rot += step;
+        }
+        // Torso.matModel = glm::translate(glm::mat4(1.0), glm::vec3(zombiePosX1, 5, zombiePosZ1));
+        Torso.Przesun(0, 0, step);
+        return;
+    }
+
+    if (zombiePosX2 < 10) {
+        zombiePosX2 += step;
+        if (rot < 4.5) {
+            Torso.Obroc(step, 0.0, 1.0, 0.0);
+            rot += step;
+        }
+        // Torso.matModel = glm::translate(glm::mat4(1.0), glm::vec3(zombiePosX1, 5, zombiePosZ1));
+        Torso.Przesun(0, 0, step);
+        return;
+    }
+
+    if (zombiePosZ2 < 10) {
+        zombiePosZ2 += step;
+        if (rot < 6) {
+            Torso.Obroc(step, 0.0, 1.0, 0.0);
+            rot += step;
+        }
+        // Torso.matModel = glm::translate(glm::mat4(1.0), glm::vec3(zombiePosX1, 5, zombiePosZ1));
+        Torso.Przesun(0, 0, step);
+        return;
+    }
+    zombiePosX1 = 0;
+    zombiePosX2 = 0;
+    zombiePosZ1 = 0;
+    zombiePosZ2 = 0;
+    rot = 0;
+    // Movement
 }
+
+void UpdateWindMill() {
+
+    PropellerMain.Obroc(0.001, 0.0, 0.0, 1.0);
+
+    PropellerSecondary.Obroc(-0.005, 0.0, 0.0, 1.0);
+}
+
+int main(int argc, char *argv[]);
+
 // --------------------------------------------------------------
 void Keyboard(unsigned char key, int x, int y) {
 
@@ -702,10 +778,8 @@ void Keyboard(unsigned char key, int x, int y) {
             break;
 
 
-
-
         case 'x':
-
+            int rip = main(GLOBAL_argc, GLOBAL_argv);
             break;
 
 
@@ -760,34 +834,42 @@ void Initialize() {
     LinkAndValidateProgram(program[PROGRAM_TREE]);
 
     // Tworzenie potoku OpenGL
+    program[PROGRAM_TORSO] = glCreateProgram();
+    glAttachShader(program[PROGRAM_TORSO], LoadShader(GL_VERTEX_SHADER, "vertexZombie.glsl"));
+    glAttachShader(program[PROGRAM_TORSO], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
+    LinkAndValidateProgram(program[PROGRAM_TORSO]);
+
+    // Tworzenie potoku OpenGL
     program[PROGRAM_ARMS] = glCreateProgram();
     glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_VERTEX_SHADER, "vertexTree.glsl"));
     glAttachShader(program[PROGRAM_ARMS], LoadShader(GL_FRAGMENT_SHADER, "fragment.glsl"));
     LinkAndValidateProgram(program[PROGRAM_ARMS]);
 
 
-    glGenVertexArrays( 1, &vArray[SCENE] );
-    glBindVertexArray( vArray[SCENE] );
+    glGenVertexArrays(1, &vArray[SCENE]);
+    glBindVertexArray(vArray[SCENE]);
 
-    glGenBuffers( 1, &vBuffer_pos[SCENE] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[SCENE] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[SCENE].size() * sizeof(glm::vec3), &(OBJ_vertices[SCENE])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[SCENE]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[SCENE]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[SCENE].size() * sizeof(glm::vec3), &(OBJ_vertices[SCENE])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_normal[SCENE] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_normal[SCENE] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_normals[SCENE].size() * sizeof(glm::vec3), &(OBJ_normals[SCENE])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
+    glGenBuffers(1, &vBuffer_normal[SCENE]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_normal[SCENE]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_normals[SCENE].size() * sizeof(glm::vec3), &(OBJ_normals[SCENE])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
 
     // Wspolrzedne textury UV
-    glGenBuffers( 1, &vBuffer_uv[SCENE] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[SCENE] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[SCENE].size() * sizeof(glm::vec2), &(OBJ_uvs[SCENE])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 2 );
-    glEnable( GL_DEPTH_TEST );
+    glGenBuffers(1, &vBuffer_uv[SCENE]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[SCENE]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[SCENE].size() * sizeof(glm::vec2), &(OBJ_uvs[SCENE])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(2);
+    glEnable(GL_DEPTH_TEST);
 
 
 
@@ -856,7 +938,7 @@ void Initialize() {
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
-    loadBMP_custom("grass.bmp", tex_width, tex_height, &tex_data);
+    loadBMP_custom("wood.bmp", tex_width, tex_height, &tex_data);
 
     glGenTextures(1, &TextureID[ARMS]);
     glBindTexture(GL_TEXTURE_2D, TextureID[ARMS]);
@@ -875,10 +957,8 @@ void Initialize() {
     myGround.CreateFromOBJ(OBJ_vertices[SCENE]);
 
 
-
-
-        Arms.Set(program[SCENE], vArray[ARMS], OBJ_vertices[ARMS].size());
-        //Arms.SetPosition(1.0, 10.0, 1.0);
+    Arms.Set(program[SCENE], vArray[ARMS], OBJ_vertices[ARMS].size());
+    //Arms.SetPosition(1.0, 10.0, 1.0);
 
 
     // Inicjalizacja obiektow
@@ -896,80 +976,92 @@ void Initialize() {
     }
 
 
-    if (!loadOBJ("torso.obj", OBJ_vertices[TORSO], OBJ_uvs[TORSO], OBJ_normals[TORSO]))
-    {
+    if (!loadOBJ("torso.obj", OBJ_vertices[TORSO], OBJ_uvs[TORSO], OBJ_normals[TORSO])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[TORSO] );
-    glBindVertexArray( vArray[TORSO] );
+    glGenVertexArrays(1, &vArray[TORSO]);
+    glBindVertexArray(vArray[TORSO]);
 
-    glGenBuffers( 1, &vBuffer_pos[TORSO] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[TORSO] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[TORSO].size() * sizeof(glm::vec3), &(OBJ_vertices[TORSO])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[TORSO]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[TORSO]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[TORSO].size() * sizeof(glm::vec3), &(OBJ_vertices[TORSO])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[TORSO] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[TORSO] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[TORSO].size() * sizeof(glm::vec2), &(OBJ_uvs[TORSO])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[TORSO]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[TORSO]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[TORSO].size() * sizeof(glm::vec2), &(OBJ_uvs[TORSO])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
+    loadBMP_custom("zombie.bmp", tex_width, tex_height, &tex_data);
 
-    if (!loadOBJ("leftleg.obj", OBJ_vertices[LEG_L], OBJ_uvs[LEG_L], OBJ_normals[LEG_L]))
-    {
+    glGenTextures(1, &TextureID[TORSO]);
+    glBindTexture(GL_TEXTURE_2D, TextureID[TORSO]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_BGR, GL_UNSIGNED_BYTE, tex_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+
+    if (!loadOBJ("leftleg.obj", OBJ_vertices[LEG_L], OBJ_uvs[LEG_L], OBJ_normals[LEG_L])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[LEG_L] );
-    glBindVertexArray( vArray[LEG_L] );
+    glGenVertexArrays(1, &vArray[LEG_L]);
+    glBindVertexArray(vArray[LEG_L]);
 
-    glGenBuffers( 1, &vBuffer_pos[LEG_L] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[LEG_L] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[LEG_L].size() * sizeof(glm::vec3), &(OBJ_vertices[LEG_L])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[LEG_L]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[LEG_L]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[LEG_L].size() * sizeof(glm::vec3), &(OBJ_vertices[LEG_L])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[LEG_L] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[LEG_L] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[LEG_L].size() * sizeof(glm::vec2), &(OBJ_uvs[LEG_L])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[LEG_L]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[LEG_L]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[LEG_L].size() * sizeof(glm::vec2), &(OBJ_uvs[LEG_L])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
-    if (!loadOBJ("rightleg.obj", OBJ_vertices[LEG_R], OBJ_uvs[LEG_R], OBJ_normals[LEG_R]))
-    {
+    if (!loadOBJ("rightleg.obj", OBJ_vertices[LEG_R], OBJ_uvs[LEG_R], OBJ_normals[LEG_R])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[LEG_R] );
-    glBindVertexArray( vArray[LEG_R] );
+    glGenVertexArrays(1, &vArray[LEG_R]);
+    glBindVertexArray(vArray[LEG_R]);
 
-    glGenBuffers( 1, &vBuffer_pos[LEG_R] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[LEG_R] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[LEG_R].size() * sizeof(glm::vec3), &(OBJ_vertices[LEG_R])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[LEG_R]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[LEG_R]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[LEG_R].size() * sizeof(glm::vec3), &(OBJ_vertices[LEG_R])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[LEG_R] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[LEG_R] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[LEG_R].size() * sizeof(glm::vec2), &(OBJ_uvs[LEG_R])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[LEG_R]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[LEG_R]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[LEG_R].size() * sizeof(glm::vec2), &(OBJ_uvs[LEG_R])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
     // 1. Stworzenie kosci
-    Torso.Set(vArray[TORSO], OBJ_vertices[TORSO].size() );
-    LeftLeg.Set(vArray[LEG_L], OBJ_vertices[LEG_L].size() );
-    RightLeg.Set(vArray[LEG_R], OBJ_vertices[LEG_R].size() );
+    Torso.Set(vArray[TORSO], OBJ_vertices[TORSO].size());
+    LeftLeg.Set(vArray[LEG_L], OBJ_vertices[LEG_L].size());
+    RightLeg.Set(vArray[LEG_R], OBJ_vertices[LEG_R].size());
 
     // 2. Ustalenie hierarchii
 
@@ -997,79 +1089,83 @@ void Initialize() {
 
 
 
-    if (!loadOBJ("windmillbase.obj", OBJ_vertices[WINDMILL], OBJ_uvs[WINDMILL], OBJ_normals[WINDMILL]))
-    {
+    if (!loadOBJ("windmillbase.obj", OBJ_vertices[WINDMILL], OBJ_uvs[WINDMILL], OBJ_normals[WINDMILL])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[WINDMILL] );
-    glBindVertexArray( vArray[WINDMILL] );
+    glGenVertexArrays(1, &vArray[WINDMILL]);
+    glBindVertexArray(vArray[WINDMILL]);
 
-    glGenBuffers( 1, &vBuffer_pos[WINDMILL] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[WINDMILL] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[WINDMILL].size() * sizeof(glm::vec3), &(OBJ_vertices[WINDMILL])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[WINDMILL]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[WINDMILL]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[WINDMILL].size() * sizeof(glm::vec3), &(OBJ_vertices[WINDMILL])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[WINDMILL] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[WINDMILL] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[WINDMILL].size() * sizeof(glm::vec2), &(OBJ_uvs[WINDMILL])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[WINDMILL]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[WINDMILL]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[WINDMILL].size() * sizeof(glm::vec2), &(OBJ_uvs[WINDMILL])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
-    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_MAIN], OBJ_uvs[PROPELLER_MAIN], OBJ_normals[PROPELLER_MAIN]))
-    {
+    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_MAIN], OBJ_uvs[PROPELLER_MAIN], OBJ_normals[PROPELLER_MAIN])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[PROPELLER_MAIN] );
-    glBindVertexArray( vArray[PROPELLER_MAIN] );
+    glGenVertexArrays(1, &vArray[PROPELLER_MAIN]);
+    glBindVertexArray(vArray[PROPELLER_MAIN]);
 
-    glGenBuffers( 1, &vBuffer_pos[PROPELLER_MAIN] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_MAIN] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_MAIN].size() * sizeof(glm::vec3), &(OBJ_vertices[PROPELLER_MAIN])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[PROPELLER_MAIN]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_MAIN]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_MAIN].size() * sizeof(glm::vec3),
+                 &(OBJ_vertices[PROPELLER_MAIN])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[PROPELLER_MAIN] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_MAIN] );
-    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_MAIN].size() * sizeof(glm::vec2), &(OBJ_uvs[PROPELLER_MAIN])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[PROPELLER_MAIN]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_MAIN]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_MAIN].size() * sizeof(glm::vec2), &(OBJ_uvs[PROPELLER_MAIN])[0],
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
-    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_SECONDARY], OBJ_uvs[PROPELLER_SECONDARY], OBJ_normals[PROPELLER_SECONDARY]))
-    {
+    if (!loadOBJ("propeller.obj", OBJ_vertices[PROPELLER_SECONDARY], OBJ_uvs[PROPELLER_SECONDARY],
+                 OBJ_normals[PROPELLER_SECONDARY])) {
         printf("Not loaded!\n");
         exit(1);
     }
     // Vertex arrays
-    glGenVertexArrays( 1, &vArray[PROPELLER_SECONDARY] );
-    glBindVertexArray( vArray[PROPELLER_SECONDARY] );
+    glGenVertexArrays(1, &vArray[PROPELLER_SECONDARY]);
+    glBindVertexArray(vArray[PROPELLER_SECONDARY]);
 
-    glGenBuffers( 1, &vBuffer_pos[PROPELLER_SECONDARY] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_SECONDARY] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_SECONDARY].size() * sizeof(glm::vec3), &(OBJ_vertices[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
+    glGenBuffers(1, &vBuffer_pos[PROPELLER_SECONDARY]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_pos[PROPELLER_SECONDARY]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_vertices[PROPELLER_SECONDARY].size() * sizeof(glm::vec3),
+                 &(OBJ_vertices[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
 
-    glGenBuffers( 1, &vBuffer_uv[PROPELLER_SECONDARY] );
-    glBindBuffer( GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_SECONDARY] );
-    glBufferData( GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_SECONDARY].size() * sizeof(glm::vec2), &(OBJ_uvs[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-    glBindVertexArray( 0 );
+    glGenBuffers(1, &vBuffer_uv[PROPELLER_SECONDARY]);
+    glBindBuffer(GL_ARRAY_BUFFER, vBuffer_uv[PROPELLER_SECONDARY]);
+    glBufferData(GL_ARRAY_BUFFER, OBJ_uvs[PROPELLER_SECONDARY].size() * sizeof(glm::vec2),
+                 &(OBJ_uvs[PROPELLER_SECONDARY])[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
 
     // 1. Stworzenie kosci
-    Windmill.Set(vArray[WINDMILL], OBJ_vertices[WINDMILL].size() );
-    PropellerMain.Set(vArray[PROPELLER_MAIN], OBJ_vertices[PROPELLER_MAIN].size() );
-    PropellerSecondary.Set(vArray[PROPELLER_SECONDARY], OBJ_vertices[PROPELLER_SECONDARY].size() );
+    Windmill.Set(vArray[WINDMILL], OBJ_vertices[WINDMILL].size());
+    PropellerMain.Set(vArray[PROPELLER_MAIN], OBJ_vertices[PROPELLER_MAIN].size());
+    PropellerSecondary.Set(vArray[PROPELLER_SECONDARY], OBJ_vertices[PROPELLER_SECONDARY].size());
 
     // 2. Ustalenie hierarchii
     Windmill.next = &PropellerMain;
@@ -1078,8 +1174,8 @@ void Initialize() {
 
     Windmill.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0, 7.4, -35));
     // 3. Ustawlenie rozmieszczenia obiektow wzgledem bazowego
-    PropellerMain.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 15.0, 1.5*3.0));
-    PropellerSecondary.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.5*3.0));
+    PropellerMain.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 15.0, 1.5 * 3.0));
+    PropellerSecondary.matModel = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.5 * 3.0));
     PropellerSecondary.Obroc(0.6, 0.0, 0.0, 1.0);
 
     // ---------- SHADOW MAPPING------------
@@ -1089,7 +1185,8 @@ void Initialize() {
     // 1. Texture
     glGenTextures(1, &DepthMap_Texture);
     glBindTexture(GL_TEXTURE_2D, DepthMap_Texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DepthMap_Width, DepthMap_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DepthMap_Width, DepthMap_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                 NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1097,7 +1194,7 @@ void Initialize() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     //float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float borderColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     // 2. Frame buffer object
@@ -1113,34 +1210,35 @@ void Initialize() {
     // 4. OpenGL program for shadow map
     // Tworzenie potoku OpenGL
     DepthMap_Program = glCreateProgram();
-    glAttachShader( DepthMap_Program, LoadShader(GL_VERTEX_SHADER, "depthmap.vertex.glsl"));
-    glAttachShader( DepthMap_Program, LoadShader(GL_FRAGMENT_SHADER, "depthmap.fragment.glsl"));
-    LinkAndValidateProgram( DepthMap_Program );
+    glAttachShader(DepthMap_Program, LoadShader(GL_VERTEX_SHADER, "depthmap.vertex.glsl"));
+    glAttachShader(DepthMap_Program, LoadShader(GL_FRAGMENT_SHADER, "depthmap.fragment.glsl"));
+    LinkAndValidateProgram(DepthMap_Program);
 
     // Inne ustawienia openGL i sceny
-    glEnable( GL_DEPTH_TEST );
+    glEnable(GL_DEPTH_TEST);
     // NOWE
-    glEnable( GL_BLEND );
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindVertexArray( vArray[SCENE] );
-    glUseProgram( program[SCENE] );
-
+    glBindVertexArray(vArray[SCENE]);
+    glUseProgram(program[SCENE]);
 
 
 }
+
 //s
-void Animation(int frame)
-{
+void Animation(int frame) {
     glutTimerFunc(5, Animation, 0);
     UpdateWindMill();
-    UpdateZombie(0.005);
+    UpdateZombieMovement(0.005);
+    UpdateZombieAnimation(0.005);
     glutPostRedisplay();
 }
 
 // ---------------------------------------------------
 int main(int argc, char *argv[]) {
     randTrees();
-
+    GLOBAL_argc = argc;
+    *GLOBAL_argv = *argv;
     // GLUT
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

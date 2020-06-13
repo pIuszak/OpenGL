@@ -493,7 +493,13 @@ void DisplayScene() {
     matView = glm::rotate(matView, _scene_rotate_y, glm::vec3(0.0f, 1.0f, 0.0f));
 
     matView = glm::translate(matView, glm::vec3(_scene_translate_x, 0, _scene_translate_z));
-    if (!isCollision){
+
+    if (isCollision) {
+        xpos -= 0.01f;
+        ypos -= 0.01f;
+    }
+
+
         float y = myGround.getAltitute(glm::vec2(xpos, zpos));
         //printf("XD %f", y);
         matView = glm::translate(matView, glm::vec3(-xpos, -y - 2, -zpos));
@@ -501,9 +507,9 @@ void DisplayScene() {
         Arms.SetRotation( -_scene_rotate_x,1.0f, 0.0f, 0.0f);
         Arms.SetRotation( -_scene_rotate_y,0.0f, 1.0f, 0.0f);
         myCharacterCollider.SetPosition(xpos, y+2.0f, zpos+5);
-    }else{
 
-    }
+
+
 
     Camera_Position = ExtractCameraPos(matView);
 
@@ -585,6 +591,8 @@ void DisplayScene() {
 
         Arms.Draw();
         Windmill.Draw(program[SCENE]);
+
+
 
     for (int i = 0; i < 100; ++i) {
         Trees[i].Draw();

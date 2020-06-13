@@ -13,6 +13,8 @@ GL/glew.h
 -
 GL/freeglut.h
 -
+GL/SOIL.h
+-
 glm/glm.hpp
 -
 glm/gtc/matrix_transform.hpp

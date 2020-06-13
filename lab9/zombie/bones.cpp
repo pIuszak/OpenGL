@@ -219,6 +219,8 @@ void Keyboard( unsigned char key, int x, int y )
             rightLeg2= 0;
             rightLeg1= 0;
 
+            Torso.Przesun(0,0,0.5);
+
 		break;
 
 //		case 's':

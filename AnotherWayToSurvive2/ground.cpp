@@ -3,7 +3,7 @@
 #include <GL/freeglut.h>
 
 #define GLM_SWIZZLE
-
+#include <GL/SOIL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -808,7 +808,7 @@ void Initialize() {
     int tex_width;
     int tex_height;
     unsigned char *tex_data;
-    loadBMP_custom("chess.bmp", tex_width, tex_height, &tex_data);
+    loadBMP_custom("grass.bmp", tex_width, tex_height, &tex_data);
 
     glGenTextures(1, &TextureID[SCENE]);
     glBindTexture(GL_TEXTURE_2D, TextureID[SCENE]);
@@ -875,7 +875,7 @@ void Initialize() {
 
 
     // SPHERE
-    if (!loadOBJ("tree.obj", OBJ_vertices[TREE], OBJ_uvs[TREE], OBJ_normals[TREE])) {
+    if (!loadOBJ("laubbaum.obj", OBJ_vertices[TREE], OBJ_uvs[TREE], OBJ_normals[TREE])) {
         printf("Not loaded!\n");
         exit(1);
     }
@@ -950,6 +950,23 @@ void Initialize() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+    tex_data = SOIL_load_image("tex1-min.png", &tex_width, &tex_height, 0, SOIL_LOAD_RGBA);
+    if (tex_data == NULL)
+    {
+        printf("Blad odczytu pliku graficznego!\n");
+        exit(1);
+    }
+
+
+    // NOWE: parametr RGBA zamiast RGB dwukrotnie !
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+    SOIL_free_image_data(tex_data);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 //    Arms.SetPosition(0.0f,0.0f,0.0f);
